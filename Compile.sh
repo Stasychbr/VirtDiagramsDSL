@@ -1,0 +1,1 @@
+antlr4.bat -Dlanguage=Python3 Grammar.g4 -visitor -o antlr_build
