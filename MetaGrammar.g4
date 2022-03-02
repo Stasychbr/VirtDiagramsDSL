@@ -2,16 +2,29 @@ grammar MetaGrammar;
 
 rulelist : rule_ * EOF ;
 
-rule_ : name=ID '=' chain;
+rule_ : name=ID '=' alternation ';';
 
-chain : alternation;
+alternation : concatenation ('|' concatenation)* ;
 
-alternation : element ('|' element)* ;
+concatenation
+   : element +
+   ;
 
-element : ID | INT | STRING ;
+repetition : '{' alternation '}' ;
 
+group : '(' alternation ')' ;
 
-STRING : ( '%s' | '%i' )? '"' ( ~ '"' )* '"' ;
+option : '[' alternation ']' ;
+
+element : group # GroupLabel
+        | repetition # RepetitionLabel
+        | option # OptionLabel
+        | ID # NonTerminalLabel
+        | INT # TerminalLabel
+        | STRING # TerminalLabel
+        ;
+
+STRING : '"' ( ~ '"' )* '"' ;
 
 INT: '0' .. '9'+ ;
 
@@ -21,4 +34,4 @@ fragment LETTER : 'a' .. 'z' | 'A' .. 'Z';
 
 fragment DIGIT : '0' .. '9' ;
 
-WS: ( ' ' | '\t' | '\r' | '\n' ) -> channel ( HIDDEN );
+WS: ( ' ' | '\t' | '\r' | '\n' ) -> channel ( HIDDEN ) ;
