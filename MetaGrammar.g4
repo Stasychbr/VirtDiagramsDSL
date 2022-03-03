@@ -2,7 +2,7 @@ grammar MetaGrammar;
 
 rulelist : rule_ * EOF ;
 
-rule_ : name=ID '=' alternation ';';
+rule_ : name=ID '=' alternation;
 
 alternation : concatenation ('|' concatenation)* ;
 
@@ -18,7 +18,7 @@ option : '[' alternation ']' ;
 
 element : group # GroupLabel
         | repetition # RepetitionLabel
-        | option # OptionLabel
+        | option #OptionLabel
         | ID # NonTerminalLabel
         | INT # TerminalLabel
         | STRING # TerminalLabel
