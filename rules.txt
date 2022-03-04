@@ -1,5 +1,6 @@
 Number =Digit{ Digit };
 RandomName = Termin { Digit | [Termin]} Termin;
 Termin=4;
+Error = [];
 Frank = 10 | 2 13 | 7;
 Digit = ( 0 | 1 );
