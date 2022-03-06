@@ -1,8 +1,8 @@
 grammar MetaGrammar;
 
-rulelist : rule_ * EOF ;
+ruleList : singleRule * EOF ;
 
-rule_ : name=ID '=' alternation;
+singleRule : ID '=' alternation ';' ;
 
 alternation : concatenation ('|' concatenation)* ;
 
@@ -16,13 +16,16 @@ group : '(' alternation ')' ;
 
 option : '[' alternation ']' ;
 
-element : group # GroupLabel
-        | repetition # RepetitionLabel
-        | option # OptionLabel
-        | ID # NonTerminalLabel
-        | INT # TerminalLabel
-        | STRING # TerminalLabel
+element : group
+		| repetition
+		| option
+		| nonTerminal
+		| terminal
         ;
+
+nonTerminal: ID ;
+
+terminal: INT | STRING ;
 
 STRING : '"' ( ~ '"' )* '"' ;
 

@@ -10,7 +10,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 
 set(ANTLR_DIR "C:\\lib\\LIBANTLR4")
@@ -24,4 +23,4 @@ include_directories(${ANTLR_INCLUDE_DIR})
 
 qt_add_executable(vdl ${PROJECT_SOURCES} ${MetaGrammar_SOURCES})
 target_link_libraries(vdl PRIVATE Qt6::Widgets ${ANTLR_LIBRARY})
-target_compile_definitions(vdl PUBLIC -DQT_NO_KEYWORDS)
+target_compile_definitions(vdl PUBLIC QT_NO_KEYWORDS)

@@ -2,12 +2,19 @@
 
 #include <QMainWindow>
 
-class MainWindow : public QMainWindow {
-	Q_OBJECT
-public:
-	MainWindow();
+namespace Ui {
+class MainWindow;
+}
 
-Q_SIGNALS:
-	void testSignal();
+class MainWindow : public QMainWindow
+{
+	Q_OBJECT
+
+public:
+	explicit MainWindow(QWidget *parent = nullptr);
+	~MainWindow();
+
+private:
+	Ui::MainWindow *ui;
 };
 
