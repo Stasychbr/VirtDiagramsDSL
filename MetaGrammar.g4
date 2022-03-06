@@ -18,7 +18,7 @@ option : '[' alternation ']' ;
 
 element : group # GroupLabel
         | repetition # RepetitionLabel
-        | option #OptionLabel
+        | option # OptionLabel
         | ID # NonTerminalLabel
         | INT # TerminalLabel
         | STRING # TerminalLabel
@@ -32,6 +32,6 @@ ID : LETTER ( LETTER | DIGIT | '_' )* ;
 
 fragment LETTER : 'a' .. 'z' | 'A' .. 'Z';
 
-fragment DIGIT : '0' .. '9' ;
+fragment DIGIT : '0' .. '8' ;
 
 WS: ( ' ' | '\t' | '\r' | '\n' ) -> channel ( HIDDEN ) ;
