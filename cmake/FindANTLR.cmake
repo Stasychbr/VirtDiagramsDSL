@@ -2,8 +2,12 @@ if (NOT ANTLR_DIR)
 	message( SEND_ERROR "Set ANTLR_DIR variable")
 endif()
 
-find_path(ANTLR_INCLUDE_DIR antlr4-runtime.h PATHS ${ANTLR_DIR}/include/antlr4-runtime)
-find_library(ANTLR_LIBRARY libantlr4-runtime PATHS ${ANTLR_DIR}/lib)
+find_path(ANTLR_INCLUDE_DIR antlr4-runtime.h
+		  PATHS ${ANTLR_DIR}/include
+		  PATH_SUFFIXES /antlr4-runtime)
+
+find_library(ANTLR_LIBRARY libantlr4-runtime
+			 PATHS ${ANTLR_DIR}/lib)
 
 find_program(ANTLR_COMMAND antlr4.bat)
 

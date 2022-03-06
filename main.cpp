@@ -1,20 +1,25 @@
-﻿#include <antlr4-runtime.h>
+﻿#include <QApplication>
+
+#include <antlr4-runtime.h>
 
 #include "antlr/MetaGrammar/MetaGrammarParser.h"
 #include "antlr/MetaGrammar/MetaGrammarLexer.h"
 
-using namespace std;
-using namespace antlr4;
+#include "MainWindow.h"
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
     std::ifstream stream;
     stream.open("rules.txt");
     
-    ANTLRInputStream input(stream);
-    MetaGrammarLexer lexer(&input);
-    CommonTokenStream tokens(&lexer);
-    MetaGrammarParser parser(&tokens);    
+	antlr4::ANTLRInputStream input(stream);
+	MetaGrammarLexer lexer(&input);
+	antlr4::CommonTokenStream tokens(&lexer);
+	MetaGrammarParser parser(&tokens);
     auto tree = parser.rulelist();
 
-    return 0;
+	QApplication app(argc, argv);
+	MainWindow w;
+	w.show();
+
+	return app.exec();
 }
