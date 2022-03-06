@@ -16,8 +16,7 @@ private:
 	void updateMinSize();
 
 	QString m_text;
-	QRectF m_textRect;
 
 	qreal m_widthAdj = 15.0;
 	qreal m_heightAdj = 15.0;
-}
+};

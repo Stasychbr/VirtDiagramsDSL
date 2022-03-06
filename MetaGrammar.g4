@@ -2,7 +2,7 @@ grammar MetaGrammar;
 
 ruleList : singleRule * EOF ;
 
-singleRule : ID '=' alternation ';' ;
+singleRule : name=ID '=' alternation ';' ;
 
 alternation : concatenation ('|' concatenation)* ;
 

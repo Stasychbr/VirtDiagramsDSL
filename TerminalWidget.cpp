@@ -5,6 +5,8 @@
 
 TerminalWidget::TerminalWidget(const QString& text, QGraphicsItem* parent)
 	: QGraphicsWidget(parent), m_text(text) {
+
+	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 	updateMinSize();
 }
 
@@ -12,7 +14,7 @@ void TerminalWidget::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 {
 	qreal penWidth = painter->pen().widthF();
 
-	QRectF adjusted = m_textRect.adjusted(0, 0, -penWidth, -penWidth);
+	QRectF adjusted = rect().adjusted(0, 0, -penWidth, -penWidth);
 	painter->drawRect(adjusted);
 	painter->drawText(adjusted, Qt::AlignCenter, m_text);
 }
@@ -37,10 +39,8 @@ bool TerminalWidget::event(QEvent* event)
 void TerminalWidget::updateMinSize()
 {
 	QFontMetrics metrics(font());
-	QSize textSize = metrics.size(0, m_text);
+	QSizeF textSize = metrics.size(0, m_text);
+	textSize += QSizeF(2 * m_widthAdj, 2 * m_heightAdj);
 
-	m_textRect = QRectF(QPointF(), textSize);
-	m_textRect.adjust(0, 0, 2 * m_widthAdj, 2 * m_heightAdj);
-
-	setMinimumSize(m_textRect.size());
+	setMinimumSize(textSize);
 }
