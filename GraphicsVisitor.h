@@ -14,5 +14,6 @@ public:
 	antlrcpp::Any visitAlternation(MetaGrammarParser::AlternationContext* ctx) override;
 	antlrcpp::Any visitConcatenation(MetaGrammarParser::ConcatenationContext* ctx) override;
 	antlrcpp::Any visitTerminal(MetaGrammarParser::TerminalContext* ctx) override;
+	antlrcpp::Any visitNonTerminal(MetaGrammarParser::NonTerminalContext* ctx) override;
 };
 

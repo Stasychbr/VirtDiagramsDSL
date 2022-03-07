@@ -85,3 +85,18 @@ antlrcpp::Any GraphicsVisitor::visitTerminal(MetaGrammarParser::TerminalContext*
 
 	return static_cast<QGraphicsLayoutItem*>(widget);
 }
+
+antlrcpp::Any GraphicsVisitor::visitNonTerminal(MetaGrammarParser::NonTerminalContext* ctx)
+{
+	const auto& text = QString::fromStdString(ctx->getText());
+
+	auto widget = new TextLayoutItem(text);
+	widget->setTextAdjustment(QSizeF(15, 10));
+
+	auto frameEffect = new FrameGraphicsEffect;
+	frameEffect->setXRoundRadius(15, Qt::AbsoluteSize);
+	frameEffect->setYRoundRadius(1.0, Qt::RelativeSize);
+	widget->setGraphicsEffect(frameEffect);
+
+	return static_cast<QGraphicsLayoutItem*>(widget);
+}
