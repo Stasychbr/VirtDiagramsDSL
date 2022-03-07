@@ -1,9 +1,12 @@
 #include "GraphicsVisitor.h"
 
 #include <QGraphicsLinearLayout>
+#include <QGraphicsAnchorLayout>
+#include <QGraphicsWidget>
 
-#include "TerminalWidget.h"
+#include "TextLayoutItem.h"
 #include "ArrowItem.h"
+#include "FrameGraphicsEffect.h"
 
 GraphicsVisitor::GraphicsVisitor()
 {
@@ -14,14 +17,25 @@ antlrcpp::Any GraphicsVisitor::visitRuleList(MetaGrammarParser::RuleListContext*
 {
 	auto form = new QGraphicsWidget;
 
-	auto layout = new QGraphicsLinearLayout;
-	layout->setOrientation(Qt::Vertical);
+	auto layout = new QGraphicsAnchorLayout;
+	const auto& ruleVector = ctx->singleRule();
 
-	for (auto rule : ctx->singleRule()) {
-		const std::string& ruleName = rule->name->getText();
+	QGraphicsLayoutItem* currItem = nullptr;
+	for (int i = 0; i < ruleVector.size(); i++) {
+		auto rule = ruleVector[i];
 
-		auto item = visitSingleRule(rule).as<QGraphicsLayoutItem*>();
-		layout->addItem(item);
+		QString ruleName = QString::fromStdString(rule->name->getText());
+		auto label = new TextLayoutItem(ruleName);
+
+		if (i == 0) {
+			layout->addCornerAnchors(label, Qt::TopLeftCorner, layout, Qt::TopLeftCorner);
+
+		} else {
+			layout->addCornerAnchors(currItem, Qt::BottomLeftCorner, label, Qt::TopLeftCorner);
+		}
+
+		currItem = visitSingleRule(rule).as<QGraphicsLayoutItem*>();
+		layout->addCornerAnchors(label, Qt::BottomLeftCorner, currItem, Qt::TopLeftCorner);
 	}
 
 	form->setLayout(layout);
@@ -64,6 +78,10 @@ antlrcpp::Any GraphicsVisitor::visitConcatenation(MetaGrammarParser::Concatenati
 antlrcpp::Any GraphicsVisitor::visitTerminal(MetaGrammarParser::TerminalContext* ctx)
 {
 	const auto& text = QString::fromStdString(ctx->getText());
-	auto widget = new TerminalWidget(text);
+
+	auto widget = new TextLayoutItem(text);
+	widget->setTextAdjustment(QSizeF(15, 10));
+	widget->setGraphicsEffect(new FrameGraphicsEffect);
+
 	return static_cast<QGraphicsLayoutItem*>(widget);
 }

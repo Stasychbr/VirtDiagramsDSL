@@ -3,15 +3,8 @@
 #include <QPainter>
 
 ArrowItem::ArrowItem(const QSizeF& sizeHint, QGraphicsItem* parent)
-	: QGraphicsItem(parent), m_sizeHint(sizeHint) {
+	: SimpleLayoutItem(parent), m_sizeHint(sizeHint) {
 	setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	setGraphicsItem(this);
-}
-
-QRectF ArrowItem::boundingRect() const
-{
-	QSizeF geomSize = geometry().size();
-	return QRectF(QPointF(), geomSize);
 }
 
 void ArrowItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -38,14 +31,24 @@ void ArrowItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	painter->drawPath(path);
 }
 
-void ArrowItem::setGeometry(const QRectF& rect)
-{
-	prepareGeometryChange();
-	QGraphicsLayoutItem::setGeometry(rect);
-	setPos(rect.topLeft());
-}
-
 QSizeF ArrowItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const
 {
-	return m_sizeHint;
+	QSizeF sh;
+	switch (which) {
+		case Qt::MinimumSize:
+			sh = QSizeF(20, 10);
+			break;
+
+		case Qt::PreferredSize:
+			sh = m_sizeHint;
+			break;
+
+		case Qt::MaximumSize:
+			sh = QSizeF();
+			break;
+
+		default:
+			break;
+	}
+	return sh;
 }

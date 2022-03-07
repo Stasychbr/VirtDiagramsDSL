@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 
 #include <QGraphicsWidget>
+#include <QGraphicsScene>
 
 #include <antlr4-runtime.h>
 
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	auto rulesList = parser.ruleList();
 	auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
 	scene->addItem(widget);
+	widget->setMaximumSize(200, 200);
 }
 
 MainWindow::~MainWindow()
