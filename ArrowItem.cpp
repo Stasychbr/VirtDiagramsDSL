@@ -20,7 +20,7 @@ void ArrowItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
 	const QPointF& midPoint = (startPoint + endPoint) / 2.0;
 	path.moveTo(midPoint);
 
-	QPointF bias(10.0, 10.0);
+    QPointF bias(5.0, 5.0);
 	path.lineTo(midPoint - bias);
 
 	bias.ry() *= -1;
