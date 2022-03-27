@@ -11,7 +11,8 @@ public:
 
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 
-	void setTextAdjustment(const QSizeF& adj);
+	void expandTo(const QSizeF& size);
+	void growBy(const QMarginsF& margins);
 	void setFont(const QFont& font);
 
 protected:
@@ -22,6 +23,5 @@ private:
 
 	QString m_text;
 	QFont m_font;
-	QSizeF m_textSize;
-	QSizeF m_textAdj;
+	QSizeF m_sizeHint;
 };

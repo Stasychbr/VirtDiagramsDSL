@@ -14,7 +14,7 @@ class MainWindow : public QMainWindow
     static constexpr int scaleTimes = 5;
 
 public:
-	explicit MainWindow(QWidget *parent = nullptr);
+	explicit MainWindow(QWidget* parent = nullptr);
 	~MainWindow();
 
 private Q_SLOTS:

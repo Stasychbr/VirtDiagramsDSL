@@ -4,9 +4,12 @@
 #include <QGraphicsAnchorLayout>
 #include <QGraphicsWidget>
 
-#include "TextLayoutItem.h"
-#include "ArrowItem.h"
-#include "FrameGraphicsEffect.h"
+#include "GrammarElements/TerminalItem.h"
+#include "GrammarElements/NonTerminalItem.h"
+#include "GrammarElements/ConcatBuilder.h"
+#include "GrammarElements/AlternBuilder.h"
+
+#include "ObservableWrapper.h"
 
 GraphicsVisitor::GraphicsVisitor()
 {
@@ -34,11 +37,12 @@ antlrcpp::Any GraphicsVisitor::visitRuleList(MetaGrammarParser::RuleListContext*
 			layout->addCornerAnchors(currItem, Qt::BottomLeftCorner, label, Qt::TopLeftCorner);
 		}
 
-		currItem = visitSingleRule(rule).as<QGraphicsLayoutItem*>();
+		currItem = visitSingleRule(rule).as<ObservableWrapper*>()->layoutItem();
 		layout->addCornerAnchors(label, Qt::BottomLeftCorner, currItem, Qt::TopLeftCorner);
 	}
 
 	form->setLayout(layout);
+	layout->activate();
 	return form;
 }
 
@@ -49,54 +53,43 @@ antlrcpp::Any GraphicsVisitor::visitSingleRule(MetaGrammarParser::SingleRuleCont
 
 antlrcpp::Any GraphicsVisitor::visitAlternation(MetaGrammarParser::AlternationContext* ctx)
 {
-	return visitChildren(ctx);
+	auto builder = new AlternBuilder;
+
+	for (auto element : ctx->concatenation()) {
+		auto wrapper = visitConcatenation(element).as<ObservableWrapper*>();
+		builder->addElement(wrapper);
+	}
+
+	return ObservableWrapper::wrap(builder->build());
 }
 
 antlrcpp::Any GraphicsVisitor::visitConcatenation(MetaGrammarParser::ConcatenationContext* ctx)
 {
-	auto layout = new QGraphicsLinearLayout;
-	layout->setSpacing(0.0);
-
-	QSizeF arrowSize = { 100, 20 };
-	auto addArrow = [layout, &arrowSize] () {
-		auto arrow = new ArrowItem(arrowSize);
-		layout->addItem(arrow);
-		layout->setAlignment(arrow, Qt::AlignVCenter);
-	};
-
-	addArrow();
+	ConcatBuilder builder;
 
 	for (auto element : ctx->element()) {
-		auto item = visitElement(element).as<QGraphicsLayoutItem*>();
-		layout->addItem(item);
-		addArrow();
+		auto wrapper = visitElement(element).as<ObservableWrapper*>();
+		builder.addElement(wrapper);
 	}
 
-	return static_cast<QGraphicsLayoutItem*>(layout);
+	return ObservableWrapper::wrap(builder.build());
 }
 
 antlrcpp::Any GraphicsVisitor::visitTerminal(MetaGrammarParser::TerminalContext* ctx)
 {
 	const auto& text = QString::fromStdString(ctx->getText());
-
-	auto widget = new TextLayoutItem(text);
-	widget->setTextAdjustment(QSizeF(15, 10));
-	widget->setGraphicsEffect(new FrameGraphicsEffect);
-
-	return static_cast<QGraphicsLayoutItem*>(widget);
+	auto item = new TerminalItem(text);
+	return ObservableWrapper::wrap(item);
 }
 
 antlrcpp::Any GraphicsVisitor::visitNonTerminal(MetaGrammarParser::NonTerminalContext* ctx)
 {
 	const auto& text = QString::fromStdString(ctx->getText());
+	auto item = new NonTerminalItem(text);
+	return ObservableWrapper::wrap(item);
+}
 
-	auto widget = new TextLayoutItem(text);
-	widget->setTextAdjustment(QSizeF(15, 10));
-
-	auto frameEffect = new FrameGraphicsEffect;
-	frameEffect->setXRoundRadius(15, Qt::AbsoluteSize);
-	frameEffect->setYRoundRadius(1.0, Qt::RelativeSize);
-	widget->setGraphicsEffect(frameEffect);
-
-	return static_cast<QGraphicsLayoutItem*>(widget);
+antlrcpp::Any GraphicsVisitor::visitGroup(MetaGrammarParser::GroupContext* ctx)
+{
+	return visit(ctx->alternation());
 }

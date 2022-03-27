@@ -15,9 +15,15 @@ void TextLayoutItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 	painter->drawText(boundingRect(), Qt::AlignCenter, m_text);
 }
 
-void TextLayoutItem::setTextAdjustment(const QSizeF& adj)
+void TextLayoutItem::expandTo(const QSizeF& size)
 {
-	m_textAdj = adj;
+	m_sizeHint = m_sizeHint.expandedTo(size);
+	updateGeometry();
+}
+
+void TextLayoutItem::growBy(const QMarginsF& margins)
+{
+	m_sizeHint = m_sizeHint.grownBy(margins);
 	updateGeometry();
 }
 
@@ -29,28 +35,11 @@ void TextLayoutItem::setFont(const QFont& font)
 
 QSizeF TextLayoutItem::sizeHint(Qt::SizeHint which, const QSizeF& constraint) const
 {
-	QSizeF sh;
-
-	switch (which) {
-	case Qt::MinimumSize:
-		sh = m_textSize;
-		break;
-
-	case Qt::PreferredSize:
-	case Qt::MaximumSize:
-		sh = m_textSize +  2 * m_textAdj;
-		break;
-
-	default:
-		break;
-	}
-
-	return sh;
+	return m_sizeHint;
 }
 
 void TextLayoutItem::updateTextSize()
 {
 	QFontMetrics metrics(m_font);
-	m_textSize = metrics.size(0, m_text);
-	updateGeometry();
+	expandTo(metrics.size(0, m_text));
 }
