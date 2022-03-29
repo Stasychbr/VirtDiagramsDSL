@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QGraphicsWidget>
-#include <QGraphicsLinearLayout>
 
 #include "ObservableWrapper.h"
 

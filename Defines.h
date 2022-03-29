@@ -8,4 +8,9 @@ namespace GuiMetrics {
 	constexpr float NonTerminalRoundRad = 15.0f;
 	constexpr float SpacerWidth = 50.0f;
 	constexpr float AlternSpacing = 25.0f;
+
+	namespace  EndPointMetrics {
+		constexpr float Radius = 5.0f;
+		constexpr float WidthFraction = 0.8;
+	}
 }

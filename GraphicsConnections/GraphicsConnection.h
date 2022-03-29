@@ -25,12 +25,9 @@ public:
 
 	QRectF boundingRect() const override;
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
-	QPainterPath shape() const override;
+	QPainterPath shape() const override = 0;
 
-private Q_SLOTS:
-	void updateJoints();
-
-private:
+protected:
 	enum Joint {
 		FirstJoint,
 		SecondJoint,
@@ -38,6 +35,11 @@ private:
 
 	QPointF mapJointPos(Joint joint) const;
 
+private Q_SLOTS:
+	void updateJoints();
+
+
+private:
 	struct JointInfo {
 		QPointF pos;
 		Qt::SizeMode sizeMode[2];

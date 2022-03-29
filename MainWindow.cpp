@@ -69,9 +69,7 @@ void MainWindow::proceedGrammar(QString path)
     auto rulesList = parser.ruleList();
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
-    scene->clear();
     scene->addItem(widget);
-    widget->setMaximumSize(200, 200);
 }
 
 void MainWindow::saveImage(QString path)

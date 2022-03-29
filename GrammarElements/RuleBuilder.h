@@ -4,15 +4,15 @@
 
 #include "ObservableWrapper.h"
 
-class ConcatBuilder
+class RuleBuilder
 {
 public:
-	ConcatBuilder();
+	RuleBuilder();
 
-	void addElement(ObservableWrapper* element);
+	void setElement(ObservableWrapper* wrapper);
 	QGraphicsWidget* build() const;
 
 private:
-	QList<ObservableWrapper*> m_wrappers;
+	ObservableWrapper* m_wrapper;
 };
 

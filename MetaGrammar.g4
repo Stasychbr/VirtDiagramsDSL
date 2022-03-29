@@ -10,7 +10,7 @@ concatenation
    : element +
    ;
 
-repetition : '{' alternation '}' ;
+repetition : '{' alternation ('*' alternation) ? '}' ;
 
 group : '(' alternation ')' ;
 

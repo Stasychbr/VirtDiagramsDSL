@@ -8,6 +8,8 @@
 #include "GrammarElements/NonTerminalItem.h"
 #include "GrammarElements/ConcatBuilder.h"
 #include "GrammarElements/AlternBuilder.h"
+#include "GrammarElements/OptionBuilder.h"
+#include "GrammarElements/RuleBuilder.h"
 
 #include "ObservableWrapper.h"
 
@@ -48,19 +50,24 @@ antlrcpp::Any GraphicsVisitor::visitRuleList(MetaGrammarParser::RuleListContext*
 
 antlrcpp::Any GraphicsVisitor::visitSingleRule(MetaGrammarParser::SingleRuleContext* ctx)
 {
-	return visitAlternation(ctx->alternation());
+	RuleBuilder builder;
+
+	auto wrapper = visitAlternation(ctx->alternation()).as<ObservableWrapper*>();
+	builder.setElement(wrapper);
+
+	return ObservableWrapper::wrap(builder.build());
 }
 
 antlrcpp::Any GraphicsVisitor::visitAlternation(MetaGrammarParser::AlternationContext* ctx)
 {
-	auto builder = new AlternBuilder;
+	AlternBuilder builder;
 
 	for (auto element : ctx->concatenation()) {
 		auto wrapper = visitConcatenation(element).as<ObservableWrapper*>();
-		builder->addElement(wrapper);
+		builder.addElement(wrapper);
 	}
 
-	return ObservableWrapper::wrap(builder->build());
+	return ObservableWrapper::wrap(builder.build());
 }
 
 antlrcpp::Any GraphicsVisitor::visitConcatenation(MetaGrammarParser::ConcatenationContext* ctx)
@@ -92,4 +99,14 @@ antlrcpp::Any GraphicsVisitor::visitNonTerminal(MetaGrammarParser::NonTerminalCo
 antlrcpp::Any GraphicsVisitor::visitGroup(MetaGrammarParser::GroupContext* ctx)
 {
 	return visit(ctx->alternation());
+}
+
+antlrcpp::Any GraphicsVisitor::visitOption(MetaGrammarParser::OptionContext* ctx)
+{
+	OptionBuilder builder;
+
+	auto wrapper = visitAlternation(ctx->alternation()).as<ObservableWrapper*>();
+	builder.setElement(wrapper);
+
+	return ObservableWrapper::wrap(builder.build());
 }

@@ -1,8 +1,11 @@
 #include "AlternBuilder.h"
 
+#include <QGraphicsLinearLayout>
+
 #include "Defines.h"
 #include "SpacerItem.h"
-#include "GraphicsConnection.h"
+
+#include "GraphicsConnections/StairConnection.h"
 
 AlternBuilder::AlternBuilder() {
 }
@@ -24,25 +27,28 @@ QGraphicsWidget* AlternBuilder::build() const
 	innerLayout->setSpacing(GuiMetrics::AlternSpacing);
 	innerLayout->setOrientation(Qt::Vertical);
 
-	auto leftSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, -1 });
-	outerLayout->addItem(leftSpacer);
-
 	outerLayout->addItem(innerLayout);
 
-	auto rightSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, -1 });
-	outerLayout->addItem(rightSpacer);
-
-
 	for (auto itemWrapper : m_wrappers) {
-		auto leftConn = new GraphicsConnection(widgetWrapper, itemWrapper, widget);
-		leftConn->setFirstJoint({ 0, GuiMetrics::ItemHalfHeight });
-		leftConn->setSecondJoint({ 0, GuiMetrics::ItemHalfHeight });
-
 		innerLayout->addItem(itemWrapper->layoutItem());
+	}
 
-		auto rightConn = new GraphicsConnection(widgetWrapper, itemWrapper, widget);
-		rightConn->setFirstJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
-		rightConn->setSecondJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
+	if (m_wrappers.size() > 1) {
+		auto leftSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, -1 });
+		outerLayout->insertItem(0, leftSpacer);
+
+		auto rightSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, -1 });
+		outerLayout->insertItem(-1, rightSpacer);
+
+		for (auto itemWrapper : m_wrappers) {
+			auto leftConn = new StairConnection(widgetWrapper, itemWrapper, leftSpacer);
+			leftConn->setFirstJoint({ 0, GuiMetrics::ItemHalfHeight });
+			leftConn->setSecondJoint({ 0, GuiMetrics::ItemHalfHeight });
+
+			auto rightConn = new StairConnection(widgetWrapper, itemWrapper, rightSpacer);
+			rightConn->setFirstJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
+			rightConn->setSecondJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
+		}
 	}
 
 	widget->setLayout(outerLayout);
