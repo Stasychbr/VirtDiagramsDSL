@@ -23,10 +23,6 @@ public:
 						Qt::SizeMode xSizeMode = Qt::AbsoluteSize,
 						Qt::SizeMode ySizeMode = Qt::AbsoluteSize);
 
-	using PtsPair = std::array<QPointF, 2>;
-	using PtsGenerator = std::function<PtsPair (const QPointF&, const QPointF&)>;
-	void setCtrlPtsGenerator(const PtsGenerator& generator);
-
 	QRectF boundingRect() const override;
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
 	QPainterPath shape() const override;
@@ -35,16 +31,19 @@ private Q_SLOTS:
 	void updateJoints();
 
 private:
-	QPointF jointPos(int i) const;
+	enum Joint {
+		FirstJoint,
+		SecondJoint,
+	};
+
+	QPointF mapJointPos(Joint joint) const;
 
 	struct JointInfo {
 		QPointF pos;
-		Qt::SizeMode xSizeMode;
-		Qt::SizeMode ySizeMode;
+		Qt::SizeMode sizeMode[2];
 		QGraphicsItem* item;
 	};
 
 	JointInfo m_joints[2];
-	PtsGenerator m_generator;
 };
 

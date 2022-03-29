@@ -14,19 +14,15 @@ GraphicsConnection::GraphicsConnection(ObservableWrapper* wrapper1,
 
 	m_joints[0].item = wrapper1->layoutItem()->graphicsItem();
 	m_joints[1].item = wrapper2->layoutItem()->graphicsItem();
-
-	m_generator = [] (const QPointF& startPoint, const QPointF& endPoint) {
-		return PtsPair{ startPoint, endPoint };
-	};
 }
 
 void GraphicsConnection::setFirstJoint(const QPointF& point,
 									   Qt::SizeMode xSizeMode,
 									   Qt::SizeMode ySizeMode)
 {
-	m_joints[0].pos = point;
-	m_joints[0].xSizeMode = xSizeMode;
-	m_joints[0].ySizeMode = ySizeMode;
+	m_joints[FirstJoint].pos = point;
+	m_joints[FirstJoint].sizeMode[Qt::XAxis] = xSizeMode;
+	m_joints[FirstJoint].sizeMode[Qt::YAxis] = ySizeMode;
 
 	updateJoints();
 }
@@ -35,16 +31,11 @@ void GraphicsConnection::setSecondJoint(const QPointF& point,
 										Qt::SizeMode xSizeMode,
 										Qt::SizeMode ySizeMode)
 {
-	m_joints[1].pos = point;
-	m_joints[1].xSizeMode = xSizeMode;
-	m_joints[1].ySizeMode = ySizeMode;
+	m_joints[SecondJoint].pos = point;
+	m_joints[SecondJoint].sizeMode[Qt::XAxis] = xSizeMode;
+	m_joints[SecondJoint].sizeMode[Qt::YAxis] = ySizeMode;
 
 	updateJoints();
-}
-
-void GraphicsConnection::setCtrlPtsGenerator(const PtsGenerator& generator)
-{
-	m_generator = generator;
 }
 
 QRectF GraphicsConnection::boundingRect() const
@@ -59,13 +50,30 @@ void GraphicsConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem
 
 QPainterPath GraphicsConnection::shape() const
 {
-	QPointF startPoint = jointPos(0);
-	QPointF endPoint = jointPos(1);
-
-	const auto& controlPoints = m_generator(startPoint, endPoint);
+	QPointF startPoint = mapJointPos(FirstJoint);
+	QPointF endPoint = mapJointPos(SecondJoint);
 
 	QPainterPath path(startPoint);
-	path.cubicTo(controlPoints[0], controlPoints[1], endPoint);
+
+	QRectF bRect(startPoint, endPoint);
+
+	qreal halfWidth = bRect.width() / 2.0;
+	qreal halfHeight = bRect.height() / 2.0;
+
+	int biasSgn = bRect.height() >= 0 ? 1 : -1;
+	qreal absBias = std::min(std::fabs(halfWidth), std::fabs(halfHeight));
+	qreal bias = biasSgn * absBias;
+
+	QPointF cp1 = startPoint + QPointF(halfWidth, 0.0);
+	QPointF aux1 = cp1 + QPointF(0.0, bias);
+
+	QPointF cp2 = endPoint - QPointF(halfWidth, 0.0);
+	QPointF aux2 = cp2 - QPointF(0.0, bias);
+
+	path.quadTo(cp1, aux1);
+	path.lineTo(aux2);
+	path.quadTo(cp2, endPoint);
+
 	return path;
 }
 
@@ -74,18 +82,18 @@ void GraphicsConnection::updateJoints()
 	update();
 }
 
-QPointF GraphicsConnection::jointPos(int i) const
+QPointF GraphicsConnection::mapJointPos(Joint joint) const
 {
-	auto item = m_joints[i].item;
+	auto item = m_joints[joint].item;
 
 	QRectF bRect = item->boundingRect();
-	QPointF pos = m_joints[i].pos;
+	QPointF pos = m_joints[joint].pos;
 
-	if (m_joints[i].xSizeMode == Qt::RelativeSize) {
+	if (m_joints[joint].sizeMode[Qt::XAxis] == Qt::RelativeSize) {
 		pos.rx() *= bRect.width();
 	}
 
-	if (m_joints[i].ySizeMode == Qt::RelativeSize) {
+	if (m_joints[joint].sizeMode[Qt::YAxis] == Qt::RelativeSize) {
 		pos.ry() *= bRect.height();
 	}
 

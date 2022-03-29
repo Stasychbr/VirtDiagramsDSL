@@ -6,6 +6,6 @@ namespace GuiMetrics {
 
 	constexpr float TextHorMargin = 20.0f;
 	constexpr float NonTerminalRoundRad = 15.0f;
-	constexpr float SpacerWidth = 75.0f;
-	constexpr float AlternSpacing = 20.0f;
+	constexpr float SpacerWidth = 50.0f;
+	constexpr float AlternSpacing = 25.0f;
 }

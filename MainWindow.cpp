@@ -38,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	ui->graphicsView->setScene(scene);
 
     saveScale = 100.f / this->logicalDpiX();
+
+	proceedGrammar("rules.txt");
 }
 
 void MainWindow::onOpenAction()
