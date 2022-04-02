@@ -1,15 +1,16 @@
 #include "GraphicsVisitor.h"
 
 #include <QGraphicsLinearLayout>
-#include <QGraphicsAnchorLayout>
 #include <QGraphicsWidget>
 
 #include "GrammarElements/TerminalItem.h"
 #include "GrammarElements/NonTerminalItem.h"
-#include "GrammarElements/ConcatBuilder.h"
-#include "GrammarElements/AlternBuilder.h"
-#include "GrammarElements/OptionBuilder.h"
-#include "GrammarElements/RuleBuilder.h"
+#include "GrammarElements/ConcatenationItem.h"
+#include "GrammarElements/AlternationItem.h"
+#include "GrammarElements/OptionItem.h"
+#include "GrammarElements/SingleRuleItem.h"
+#include "GrammarElements/RepetitionItem.h"
+#include "GrammarElements/RuleListItem.h"
 
 #include "ObservableWrapper.h"
 
@@ -20,66 +21,49 @@ GraphicsVisitor::GraphicsVisitor()
 
 antlrcpp::Any GraphicsVisitor::visitRuleList(MetaGrammarParser::RuleListContext* ctx)
 {
-	auto form = new QGraphicsWidget;
+	auto ruleListItem = new RuleListItem;
 
-	auto layout = new QGraphicsAnchorLayout;
-	const auto& ruleVector = ctx->singleRule();
-
-	QGraphicsLayoutItem* currItem = nullptr;
-	for (int i = 0; i < ruleVector.size(); i++) {
-		auto rule = ruleVector[i];
-
-		QString ruleName = QString::fromStdString(rule->name->getText());
-		auto label = new TextLayoutItem(ruleName);
-
-		if (i == 0) {
-			layout->addCornerAnchors(label, Qt::TopLeftCorner, layout, Qt::TopLeftCorner);
-
-		} else {
-			layout->addCornerAnchors(currItem, Qt::BottomLeftCorner, label, Qt::TopLeftCorner);
-		}
-
-		currItem = visitSingleRule(rule).as<ObservableWrapper*>()->layoutItem();
-		layout->addCornerAnchors(label, Qt::BottomLeftCorner, currItem, Qt::TopLeftCorner);
+	for (auto rule : ctx->singleRule()) {
+		auto wrapper = visitSingleRule(rule).as<ObservableWrapper*>();
+		ruleListItem->addElement(wrapper);
 	}
 
-	form->setLayout(layout);
-	layout->activate();
-	return form;
+	return static_cast<QGraphicsWidget*>(ruleListItem);
 }
 
 antlrcpp::Any GraphicsVisitor::visitSingleRule(MetaGrammarParser::SingleRuleContext* ctx)
 {
-	RuleBuilder builder;
+	const auto& name = QString::fromStdString(ctx->name->getText());
 
 	auto wrapper = visitAlternation(ctx->alternation()).as<ObservableWrapper*>();
-	builder.setElement(wrapper);
+	auto singleRuleItem = new SingleRuleItem(wrapper, name);
 
-	return ObservableWrapper::wrap(builder.build());
+	return ObservableWrapper::wrap(singleRuleItem);
 }
 
 antlrcpp::Any GraphicsVisitor::visitAlternation(MetaGrammarParser::AlternationContext* ctx)
 {
-	AlternBuilder builder;
+	auto alternationItem = new AlternationItem;
 
-	for (auto element : ctx->concatenation()) {
-		auto wrapper = visitConcatenation(element).as<ObservableWrapper*>();
-		builder.addElement(wrapper);
+	for (auto concat : traversal(ctx->concatenation())) {
+		auto wrapper = visitConcatenation(concat).as<ObservableWrapper*>();
+		alternationItem->addElement(wrapper);
 	}
 
-	return ObservableWrapper::wrap(builder.build());
+	return ObservableWrapper::wrap(alternationItem);
 }
 
 antlrcpp::Any GraphicsVisitor::visitConcatenation(MetaGrammarParser::ConcatenationContext* ctx)
 {
-	ConcatBuilder builder;
+	auto concatenationItem = new ConcatenationItem;
 
-	for (auto element : ctx->element()) {
+	for (auto element : traversal(ctx->element())) {
 		auto wrapper = visitElement(element).as<ObservableWrapper*>();
-		builder.addElement(wrapper);
+		concatenationItem->addElement(wrapper);
 	}
 
-	return ObservableWrapper::wrap(builder.build());
+	concatenationItem->flush();
+	return ObservableWrapper::wrap(concatenationItem);
 }
 
 antlrcpp::Any GraphicsVisitor::visitTerminal(MetaGrammarParser::TerminalContext* ctx)
@@ -103,10 +87,31 @@ antlrcpp::Any GraphicsVisitor::visitGroup(MetaGrammarParser::GroupContext* ctx)
 
 antlrcpp::Any GraphicsVisitor::visitOption(MetaGrammarParser::OptionContext* ctx)
 {
-	OptionBuilder builder;
-
 	auto wrapper = visitAlternation(ctx->alternation()).as<ObservableWrapper*>();
-	builder.setElement(wrapper);
+	auto optionItem = new OptionItem(wrapper);
 
-	return ObservableWrapper::wrap(builder.build());
+	return ObservableWrapper::wrap(optionItem);
+}
+
+antlrcpp::Any GraphicsVisitor::visitRepetition(MetaGrammarParser::RepetitionContext* ctx)
+{
+	const auto& alernVec = ctx->alternation();
+
+	auto wrapper = visitAlternation(alernVec[0]).as<ObservableWrapper*>();
+	auto repetitionItem = new RepetitionItem(wrapper);
+
+	if (alernVec.size() == 2) {
+		switchDirection();
+		wrapper = visitAlternation(alernVec[1]).as<ObservableWrapper*>();
+		switchDirection();
+
+		repetitionItem->setRepeatThrough(wrapper);
+	}
+
+	return ObservableWrapper::wrap(repetitionItem);
+}
+
+void GraphicsVisitor::switchDirection()
+{
+	m_direction = m_direction == Forward ? Reverse : Forward;
 }

@@ -8,6 +8,7 @@ EndPointConnection::EndPointConnection(ObservableWrapper* wrapper1,
 
 void EndPointConnection::setRadius(qreal radius)
 {
+	prepareGeometryChange();
 	m_radius = radius;
 }
 

@@ -16,6 +16,20 @@ GraphicsConnection::GraphicsConnection(ObservableWrapper* wrapper1,
 	m_joints[1].item = wrapper2->layoutItem()->graphicsItem();
 }
 
+void GraphicsConnection::resetFirstWrapper(ObservableWrapper* wrapper)
+{
+	m_joints[0].item = wrapper->layoutItem()->graphicsItem();
+
+	updateJoints();
+}
+
+void GraphicsConnection::resetSecondWrapper(ObservableWrapper* wrapper)
+{
+	m_joints[1].item = wrapper->layoutItem()->graphicsItem();
+
+	updateJoints();
+}
+
 void GraphicsConnection::setFirstJoint(const QPointF& point,
 									   Qt::SizeMode xSizeMode,
 									   Qt::SizeMode ySizeMode)
@@ -40,14 +54,11 @@ void GraphicsConnection::setSecondJoint(const QPointF& point,
 
 QRectF GraphicsConnection::boundingRect() const
 {
-	const auto& shapeRect = shape().boundingRect();
-	qreal penWidth = QPen().widthF();
-	return shapeRect.adjusted(0, 0, penWidth, penWidth);
+	return shape().boundingRect();
 }
 
 void GraphicsConnection::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	painter->setPen(QPen());
 	painter->drawPath(shape());
 }
 

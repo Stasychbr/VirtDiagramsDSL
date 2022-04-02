@@ -1,4 +1,2 @@
-Number = 1244 Digit "sfsfasg" 1252535;
-Digit = 2 3 (1 2 | 3 4 5 | 6);
-Slovo = "Слово" Pravoslavnoe;
-Option = [ a ];
+Repeat = { "Покушать" | "Покушать снова" * "Сходить в туалет" "Поспать" };
+Option = [ "?" ];

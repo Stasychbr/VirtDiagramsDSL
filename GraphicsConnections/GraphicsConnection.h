@@ -15,6 +15,9 @@ public:
 					   ObservableWrapper* wrapper2,
 					   QGraphicsItem* parent = nullptr);
 
+	void resetFirstWrapper(ObservableWrapper* wrapper);
+	void resetSecondWrapper(ObservableWrapper* wrapper);
+
 	void setFirstJoint(const QPointF& point,
 					   Qt::SizeMode xSizeMode = Qt::AbsoluteSize,
 					   Qt::SizeMode ySizeMode = Qt::AbsoluteSize);

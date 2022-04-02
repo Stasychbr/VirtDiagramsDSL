@@ -1,54 +1,54 @@
-#include "RuleBuilder.h"
+#include "SingleRuleItem.h"
 
 #include <QGraphicsLinearLayout>
 
 #include "Defines.h"
 #include "SpacerItem.h"
+#include "TextLayoutItem.h"
 
 #include "GraphicsConnections/EndPointConnection.h"
 
-RuleBuilder::RuleBuilder()
-{
-}
-
-void RuleBuilder::setElement(ObservableWrapper* wrapper)
-{
-	m_wrapper = wrapper;
-}
-
-QGraphicsWidget* RuleBuilder::build() const
+SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
+							   const QString& name,
+							   QGraphicsItem* parent)
+	: QGraphicsWidget(parent)
 {
 	using namespace GuiMetrics::EndPointMetrics;
 
-	auto widget = new QGraphicsWidget;
+	auto vertLayout = new QGraphicsLinearLayout;
+	vertLayout->setOrientation(Qt::Vertical);
 
-	auto layout = new QGraphicsLinearLayout;
-	layout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
+	auto nameItem = new	TextLayoutItem(name);
+	vertLayout->addItem(nameItem);
+
+	auto horLayout = new QGraphicsLinearLayout;
+	horLayout->setSpacing(0.0);
+	horLayout->setContentsMargins(0.0, 0.0, 0.0, 0.0);
 
 	auto leftSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, GuiMetrics::ItemHeight });
-	layout->addItem(leftSpacer);
+	horLayout->addItem(leftSpacer);
 
 	auto leftWrapper = ObservableWrapper::wrap(leftSpacer);
 
-	auto leftConn = new EndPointConnection(m_wrapper, leftWrapper, widget);
+	auto leftConn = new EndPointConnection(element, leftWrapper, this);
 	leftConn->setFirstJoint({ 0.0, GuiMetrics::ItemHalfHeight });
 	leftConn->setSecondJoint({ 1.0 - WidthFraction, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 
 	leftConn->setRadius(Radius);
 
-	layout->addItem(m_wrapper->layoutItem());
+	horLayout->addItem(element->layoutItem());
 
 	auto rightSpacer = new SpacerItem({ GuiMetrics::SpacerWidth, GuiMetrics::ItemHeight });
-	layout->addItem(rightSpacer);
+	horLayout->addItem(rightSpacer);
 
 	auto rightWrapper = ObservableWrapper::wrap(rightSpacer);
 
-	auto rightConn = new EndPointConnection(m_wrapper, rightWrapper, widget);
+	auto rightConn = new EndPointConnection(element, rightWrapper, this);
 	rightConn->setFirstJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 	rightConn->setSecondJoint({ WidthFraction, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 
 	rightConn->setRadius(Radius);
 
-	widget->setLayout(layout);
-	return widget;
+	vertLayout->addItem(horLayout);
+	setLayout(vertLayout);
 }
