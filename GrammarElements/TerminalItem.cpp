@@ -1,7 +1,7 @@
 #include "TerminalItem.h"
 
-#include "Defines.h"
-#include "FrameGraphicsEffect.h"
+#include "../Defines.h"
+#include "../FrameGraphicsEffect.h"
 
 TerminalItem::TerminalItem(const QString& text, QGraphicsItem* parent)
 	: TextLayoutItem(text, parent)

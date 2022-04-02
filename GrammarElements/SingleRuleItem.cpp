@@ -6,7 +6,7 @@
 #include "SpacerItem.h"
 #include "TextLayoutItem.h"
 
-#include "GraphicsConnections/EndPointConnection.h"
+#include "../GraphicsConnections/EndPointConnection.h"
 
 SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
 							   const QString& name,

@@ -10,8 +10,19 @@
     <height>600</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>9</pointsize>
+   </font>
+  </property>
+  <property name="mouseTracking">
+   <bool>true</bool>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -41,6 +52,9 @@
       <property name="renderHints">
        <set>QPainter::Antialiasing|QPainter::TextAntialiasing</set>
       </property>
+      <property name="transformationAnchor">
+       <enum>QGraphicsView::NoAnchor</enum>
+      </property>
      </widget>
     </item>
    </layout>
@@ -67,14 +81,6 @@
     <property name="title">
      <string>Settings</string>
     </property>
-    <widget class="QMenu" name="menuSet_DPI">
-     <property name="title">
-      <string>Set DPI</string>
-     </property>
-     <addaction name="dpi100"/>
-     <addaction name="dpi300"/>
-     <addaction name="dpi500"/>
-    </widget>
     <widget class="QMenu" name="menuScale">
      <property name="title">
       <string>Scale</string>
@@ -82,8 +88,8 @@
      <addaction name="actionZoom_out"/>
      <addaction name="actionZoom_in"/>
     </widget>
-    <addaction name="menuSet_DPI"/>
     <addaction name="menuScale"/>
+    <addaction name="actionSet_DPI"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menuSettings"/>
@@ -109,33 +115,6 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="dpi100">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>100</string>
-   </property>
-  </action>
-  <action name="dpi300">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>300</string>
-   </property>
-  </action>
-  <action name="dpi500">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>500</string>
-   </property>
-  </action>
   <action name="actionZoom_out">
    <property name="text">
     <string>Zoom out</string>
@@ -150,6 +129,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+=</string>
+   </property>
+  </action>
+  <action name="actionSet_DPI">
+   <property name="text">
+    <string>Set DPI</string>
    </property>
   </action>
  </widget>

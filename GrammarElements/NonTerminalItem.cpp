@@ -1,7 +1,7 @@
 #include "NonTerminalItem.h"
 
-#include "Defines.h"
-#include "FrameGraphicsEffect.h"
+#include "../Defines.h"
+#include "../FrameGraphicsEffect.h"
 
 NonTerminalItem::NonTerminalItem(const QString& text, QGraphicsItem* parent)
 	: TextLayoutItem(text, parent)

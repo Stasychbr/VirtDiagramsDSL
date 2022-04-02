@@ -4,9 +4,8 @@
 #include <QGraphicsWidget>
 #include <QGraphicsScene>
 
-#include <QFileDialog>
-#include <QActionGroup>
-#include <QSpinBox>
+#include <QtSvg/QSvgGenerator>
+#include <QPrinter>
 
 #include <antlr4-runtime.h>
 
@@ -21,25 +20,32 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-    auto dpiGroup = new QActionGroup(this);
-    dpiGroup->addAction(ui->dpi100);
-    dpiGroup->addAction(ui->dpi300);
-    dpiGroup->addAction(ui->dpi500);
-    dpiGroup->setExclusionPolicy(QActionGroup::ExclusionPolicy::Exclusive);
+    initDialogs();
+
 
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenAction);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveAction);
     connect(ui->actionSave_as, &QAction::triggered, this, &MainWindow::onSaveAsAction);
     connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOut);
-    connect(dpiGroup, &QActionGroup::triggered, this, &MainWindow::onSetDpi);
+    connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
 
-    saveScale = 100.f / this->logicalDpiX();
+    saveScale = 600.f / logicalDpiX();
 
-	proceedGrammar("rules.txt");
+//	proceedGrammar("rules.txt");
+}
+
+void MainWindow::initDialogs() {
+    QStringList mimeTypeFilters({"image/jpeg", "image/png", "image/svg+xml", "application/pdf"});
+
+    saveDialog = new QFileDialog(this);
+    saveDialog->setMimeTypeFilters(mimeTypeFilters);
+    saveDialog->setAcceptMode(QFileDialog::AcceptSave);
+
+    dpiDialog = new DpiDialog(this);
 }
 
 void MainWindow::onOpenAction()
@@ -72,64 +78,71 @@ void MainWindow::proceedGrammar(QString path)
     scene->addItem(widget);
 }
 
-void MainWindow::saveImage(QString path)
+void MainWindow::drawImage(QPaintDevice* paintDevice)
 {
-    auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
-    QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
-    pixmap.fill();
-    QPainter painter(&pixmap);
+    QPainter painter;
+    painter.begin(paintDevice);
+    painter.setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->scene()->render(&painter);
-    if (pixmap.save(path)) {
-        qDebug() << "Image is saved";
-    }
-    else {
-        qDebug() << "Error during image save!";
-    }
+    painter.end();
 }
 
 void MainWindow::onSaveAction()
 {
-    saveImage("Semantic Diagram.png");
+    auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
+    QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
+    pixmap.fill();
+    drawImage(&pixmap);
+    pixmap.save("Semantic Diagram.png");
 }
 
 void MainWindow::onSaveAsAction()
 {
-    QStringList mimeTypeFilters({"image/jpeg", "image/png", "image/svg+xml", "application/pdf"});
-
-    QFileDialog dialog(this);
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-//    QVBoxLayout layout(dialog.window());
-//    QSpinBox dpiSelect;
-//    layout.addWidget(dpiSelect.window());
-//    dialog.setLayout(layout.layout());
-    if (dialog.exec() == QDialog::Accepted) {
-        QString filename = dialog.selectedFiles().first();
+    if (saveDialog->exec() == QDialog::Accepted) {
+        QString filename = saveDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
-            saveImage(filename);
+            auto type = saveDialog->selectedMimeTypeFilter();
+            auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
+            if (type == "image/svg+xml") {
+                QSvgGenerator generator;
+                generator.setFileName(filename);
+                generator.setSize({qCeil(sceneRect.width()), qCeil(sceneRect.height())});
+                generator.setViewBox(sceneRect);
+                generator.setDescription("Just a Virt's semantic diagram");
+                generator.setTitle("Semantic Diagram");
+                drawImage(&generator);
+            }
+            else if (type == "application/pdf") {
+                QPrinter printer;
+                printer.setOutputFileName(filename);
+                printer.setOutputFormat(QPrinter::PdfFormat);
+                printer.setPageSize(QPageSize({sceneRect.width(), sceneRect.height()}, QPageSize::Millimeter, QString(), QPageSize::ExactMatch));
+                drawImage(&printer);
+            }
+            else {
+                QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
+                pixmap.fill();
+                drawImage(&pixmap);
+                pixmap.save(filename);
+            }
+
         }
     }
 }
 
-void MainWindow::onSetDpi(QAction* action)
+void MainWindow::onSetDpi()
 {
-    float dpi = 0;
-    if (action == ui->dpi100) {
-        dpi = 100;
+    if (dpiDialog->exec() == QDialog::Accepted) {
+        saveScale = dpiDialog->getDpi() / logicalDpiX();
+//        auto menu = menuBar();
+//        menu->
     }
-    else if (action == ui->dpi300) {
-        dpi = 300;
-    }
-    else {
-        dpi = 500;
-    }
-    saveScale = dpi / logicalDpiX();
 }
 
 void MainWindow::onZoomOut()
 {
     if (scaleState > -scaleTimes) {
-        ui->graphicsView->scale(1 - scaleFactor, 1 - scaleFactor);
+        ui->graphicsView->scale(1.f / scaleFactor, 1.f / scaleFactor);
         scaleState--;
     }
 }
@@ -137,7 +150,7 @@ void MainWindow::onZoomOut()
 void MainWindow::onZoomIn()
 {
     if (scaleState < scaleTimes) {
-        ui->graphicsView->scale(1 + scaleFactor, 1 + scaleFactor);
+        ui->graphicsView->scale(scaleFactor, scaleFactor);
         scaleState++;
     }
 }
@@ -146,5 +159,3 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-
-
