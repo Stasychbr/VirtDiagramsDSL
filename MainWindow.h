@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QScrollBar>
 #include "dpidialog.h"
+#include "logwindow.h"
 
 namespace Ui {
 class MainWindow;

@@ -8,6 +8,7 @@
 #include <QPrinter>
 
 #include <antlr4-runtime.h>
+#include <exception>
 
 #include "antlr/MetaGrammar/MetaGrammarParser.h"
 #include "antlr/MetaGrammar/MetaGrammarLexer.h"
@@ -18,8 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
-    setWindowTitle("Semantic Virt Diagrams builder");
 	ui->setupUi(this);
+    setWindowTitle("SVD builder");
 
     initDialogs();
 
@@ -103,6 +104,16 @@ void MainWindow::proceedGrammar(QString path)
 
     GraphicsVisitor visitor;
     auto rulesList = parser.ruleList();
+    auto e = parser.getNumberOfSyntaxErrors();
+    auto sa = lexer.getNumberOfSyntaxErrors();
+    if (e > 0) {
+//        FILE* mde = stder/*r;
+//        fread*/
+        LogWindow* log = new LogWindow(this);
+        qDebug() << "sosesh" << e << sa;
+        log->show();
+        return;
+    }
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
     scene->addItem(widget);
