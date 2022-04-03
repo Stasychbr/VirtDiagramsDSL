@@ -13,6 +13,7 @@
 #include "antlr/MetaGrammar/MetaGrammarLexer.h"
 
 #include "GraphicsVisitor.h"
+#include "ErrorListener.h"
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -39,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     saveScale = dpiDialog->getDpi() / logicalDpiX();
     ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
 
-    proceedGrammar("../VirtDiagramsDSL/rules.txt");
+	proceedGrammar("../VirtDiagramsDSL/rules.txt");
 }
 
 void MainWindow::initDialogs() {
@@ -100,6 +101,9 @@ void MainWindow::proceedGrammar(QString path)
     MetaGrammarLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     MetaGrammarParser parser(&tokens);
+
+	auto errorListener = new ErrorListener; //Possible memory leak
+	parser.addErrorListener(errorListener);
 
     GraphicsVisitor visitor;
     auto rulesList = parser.ruleList();
