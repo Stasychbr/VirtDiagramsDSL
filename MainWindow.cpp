@@ -18,10 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
 	ui(new Ui::MainWindow)
 {
+    setWindowTitle("Semantic Virt Diagrams builder");
 	ui->setupUi(this);
 
     initDialogs();
-
 
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenAction);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveAction);
@@ -33,28 +33,58 @@ MainWindow::MainWindow(QWidget *parent) :
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
 
-    saveScale = 600.f / logicalDpiX();
+    vertScroll = ui->graphicsView->verticalScrollBar();
+    vertScroll->installEventFilter(this);
 
-//	proceedGrammar("rules.txt");
+    saveScale = dpiDialog->getDpi() / logicalDpiX();
+    ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
+
+    proceedGrammar("../VirtDiagramsDSL/rules.txt");
 }
 
 void MainWindow::initDialogs() {
-    QStringList mimeTypeFilters({"image/jpeg", "image/png", "image/svg+xml", "application/pdf"});
+    QStringList saveMimeTypeFilters({"image/jpeg", "image/png", "image/svg+xml", "application/pdf"});
+    QStringList openMimeTypeFilters({"text/plain"});
 
     saveDialog = new QFileDialog(this);
-    saveDialog->setMimeTypeFilters(mimeTypeFilters);
+    saveDialog->setMimeTypeFilters(saveMimeTypeFilters);
     saveDialog->setAcceptMode(QFileDialog::AcceptSave);
+
+    openDialog = new QFileDialog(this);
+    openDialog->setMimeTypeFilters(openMimeTypeFilters);
 
     dpiDialog = new DpiDialog(this);
 }
 
+void MainWindow::wheelEvent(QWheelEvent *event) {
+    static int wheelDelta = 0;
+    int curDelta = event->angleDelta().y();
+    wheelDelta += curDelta;
+    if (wheelDelta >= 120) {
+        wheelDelta -= 120;
+        onZoomIn();
+    }
+    else if (wheelDelta <= -120) {
+        wheelDelta += 120;
+        onZoomOut();
+    }
+    event->accept();
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == vertScroll) {
+        if (event->type() == QEvent::Wheel) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void MainWindow::onOpenAction()
 {
-    QStringList mimeTypeFilters({"text/plain"});
-    QFileDialog dialog(this);
-    dialog.setMimeTypeFilters(mimeTypeFilters);
-    if (dialog.exec() == QDialog::Accepted) {
-        QString filename = dialog.selectedFiles().first();
+    if (openDialog->exec() == QDialog::Accepted) {
+        QString filename = openDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
             proceedGrammar(filename);
         }
@@ -134,8 +164,7 @@ void MainWindow::onSetDpi()
 {
     if (dpiDialog->exec() == QDialog::Accepted) {
         saveScale = dpiDialog->getDpi() / logicalDpiX();
-//        auto menu = menuBar();
-//        menu->
+        ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
     }
 }
 

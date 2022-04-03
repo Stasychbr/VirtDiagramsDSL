@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QScrollBar>
 #include "dpidialog.h"
 
 namespace Ui {
@@ -17,6 +18,8 @@ class MainWindow : public QMainWindow
 
 public:
 	explicit MainWindow(QWidget* parent = nullptr);
+    void wheelEvent(QWheelEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 	~MainWindow();
 
 private Q_SLOTS:
@@ -36,7 +39,9 @@ private:
     float saveScale;
 	Ui::MainWindow *ui;
 
-    DpiDialog* dpiDialog;
-    QFileDialog* saveDialog;
+    DpiDialog* dpiDialog = nullptr;
+    QFileDialog* openDialog = nullptr;
+    QFileDialog* saveDialog = nullptr;
+    QScrollBar* vertScroll = nullptr;
 };
 
