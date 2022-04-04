@@ -1,0 +1,2 @@
+Program = {Name "=" Expression * ";"} ".";
+Expression = {{"(" Expression ")" | Name | "{" Elements "}" * "⋃"} * "∩"};

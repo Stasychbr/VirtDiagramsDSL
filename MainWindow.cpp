@@ -107,14 +107,15 @@ void MainWindow::onError(size_t line, size_t charPos, const std::string& msg)
 
 void MainWindow::proceedGrammar(QFileInfo path)
 {
-    std::ifstream stream;
-    stream.open(path.filePath().toStdString());
-    if (!stream.good()) {
+    QFile file(path.filePath());
+    file.open(QIODeviceBase::ReadOnly | QIODeviceBase::Text);
+    if (!file.isReadable()) {
         log("Unable to open " + path.filePath());
         ui->actionShow_logger->setChecked(true);
         return;
     }
-    antlr4::ANTLRInputStream input(stream);
+    QByteArray data = file.readAll();
+    antlr4::ANTLRInputStream input(data.constData(), data.length());
     MetaGrammarLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     MetaGrammarParser parser(&tokens);
@@ -137,6 +138,7 @@ void MainWindow::proceedGrammar(QFileInfo path)
 
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
+    scene->clear();
     scene->addItem(widget);
 }
 

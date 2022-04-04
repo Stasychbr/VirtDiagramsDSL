@@ -31,7 +31,7 @@ STRING : '"' ( ~ '"' )* '"' ;
 
 INT: DIGIT+ ;
 
-ID : LETTER ( LETTER | DIGIT | '_' )* (' ' ID)?;
+ID : LETTER ( LETTER | DIGIT | '_' )*;
 
 fragment LETTER : LATIN_LETTER | CYRILLIC_LETTER ;
 
