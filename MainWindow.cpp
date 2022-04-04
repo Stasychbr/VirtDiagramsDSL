@@ -13,6 +13,7 @@
 #include "antlr/MetaGrammar/MetaGrammarLexer.h"
 
 #include "GraphicsVisitor.h"
+#include "ErrorListener.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
