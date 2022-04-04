@@ -15,7 +15,9 @@
 
 #include "GraphicsVisitor.h"
 #include "ErrorListener.h"
+#include "Defines.h"
 
+using namespace GuiMetrics;
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
@@ -24,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	m_loggerButton = new HighlightableButton;
+	m_loggerButton = new HighlightableButton(LoggerButton::BackroundColor);
 	ui->centralLayout->insertWidget(1, m_loggerButton);
     m_loggerButton->setToolTip("Show logger");
     onLoggerButton(false);
@@ -42,10 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_loggerButton, &QPushButton::clicked, this, &MainWindow::onLoggerButton);
     connect(ui->actionShow_grammar, &QAction::triggered, this, &MainWindow::showMetaDiagram);
 
-	m_loggerButton->setFont(QFont("Seqoe UI", 10));
-
-    auto scene = new QGraphicsScene(this);
-	ui->graphicsView->setScene(scene);
+	m_loggerButton->setFont(LoggerButton::TextFont);
 
     m_vertScroll = ui->graphicsView->verticalScrollBar();
     m_vertScroll->installEventFilter(this);
@@ -105,7 +104,7 @@ void MainWindow::onOpenAction()
 {
     if (m_openDialog->exec() == QDialog::Accepted) {
         QString filename = m_openDialog->selectedFiles().first();
-        if (!filename.isEmpty()) {
+		if (!filename.isEmpty()) {
             proceedGrammar(QFileInfo(filename));
         }
     }
@@ -169,9 +168,13 @@ void MainWindow::proceedGrammar(QFileInfo path)
 
     m_curFileName = path;
 
+	auto currScene = ui->graphicsView->scene();
+	delete currScene;
+
+	auto scene = new QGraphicsScene(this);
+	ui->graphicsView->setScene(scene);
+
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
-    auto scene = ui->graphicsView->scene();
-    scene->clear();
     scene->addItem(widget);
 }
 
@@ -190,7 +193,7 @@ void MainWindow::onSaveAction()
     QPixmap pixmap(m_saveScale * sceneRect.width(), m_saveScale * sceneRect.height());
     pixmap.fill();
     drawImage(&pixmap);
-    pixmap.save(m_curFileName.baseName() + "SVD.png");
+	pixmap.save(m_curFileName.baseName() + "Diagram.png");
 }
 
 void MainWindow::onSaveAsAction()
@@ -263,7 +266,8 @@ void MainWindow::showMetaDiagram() {
 
 void MainWindow::highlightLoggerButton()
 {
-    m_loggerButton->highlight(QColor(200, 0, 0, 200), 1000);
+	m_loggerButton->highlight(LoggerButton::HighlightColor,
+							  LoggerButton::HighlightDuration);
 }
 
 MainWindow::~MainWindow()
