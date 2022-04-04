@@ -33,7 +33,11 @@ INT: '0' .. '9'+ ;
 
 ID : LETTER ( LETTER | DIGIT | '_' )* ;
 
-fragment LETTER : 'a' .. 'z' | 'A' .. 'Z';
+fragment LETTER : LATIN_LETTER | CYRILLIC_LETTER ;
+
+fragment LATIN_LETTER : 'a' .. 'z' | 'A' .. 'Z' ;
+
+fragment CYRILLIC_LETTER : '\u0400'..'\u04FF' ;
 
 fragment DIGIT : '0' .. '8' ;
 
