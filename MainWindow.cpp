@@ -23,7 +23,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	ui->loggerWidget->hide();
+	m_loggerButton = new HighlightableButton;
+	ui->centralLayout->insertWidget(1, m_loggerButton);
 
     initDialogs();
 
@@ -35,7 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
 	connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
 
-	connect(ui->loggerButton, &QPushButton::toggled, this, &MainWindow::onLoggerButton);
+	connect(m_loggerButton, &QPushButton::toggled, this, &MainWindow::onLoggerButton);
+
+	m_loggerButton->setChecked(true);
+	m_loggerButton->setFont(QFont("Seqoe UI", 10));
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
@@ -109,7 +113,9 @@ void MainWindow::onError(size_t line, size_t charPos, const std::string& msg)
 
 void MainWindow::onLoggerButton(bool checked)
 {
+	QString buttonText = checked ? "»" : "«" ;
 	ui->loggerWidget->setHidden(checked);
+	m_loggerButton->setText(buttonText);
 }
 
 void MainWindow::proceedGrammar(QFileInfo path)
@@ -242,7 +248,7 @@ void MainWindow::log(QString msg)
 
 void MainWindow::highlightLoggerButton()
 {
-
+	m_loggerButton->highlight(QColor(255, 0, 0, 125), 1000);
 }
 
 MainWindow::~MainWindow()

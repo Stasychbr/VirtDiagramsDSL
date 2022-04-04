@@ -4,7 +4,9 @@
 #include <QFileDialog>
 #include <QScrollBar>
 #include "dpidialog.h"
+
 #include "ErrorListener.h"
+#include "HighlightableButton.h"
 
 namespace Ui {
 class MainWindow;
@@ -54,5 +56,7 @@ private:
     QFileDialog* m_saveDialog = nullptr;
     QScrollBar* m_vertScroll = nullptr;
     ErrorListener* m_errorListener = nullptr;
+
+	HighlightableButton* m_loggerButton;
 };
 
