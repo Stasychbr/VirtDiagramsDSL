@@ -47,8 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
 	connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
     connect(m_loggerButton, &QPushButton::clicked, this, &MainWindow::onLoggerButton);
 
-//	m_loggerButton->setChecked(true);
-	m_loggerButton->setFont(QFont("Seqoe UI", 10));
+	m_loggerButton->setFont(QFont("Seqoe UI", 12));
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);

@@ -20,7 +20,7 @@ static QVariant colorInterpolator(const QColor& start,
 	return QColor::fromRgbF(redF, greenF, blueF, alphaF);
 }
 
-HighlightableButton::HighlightableButton(QWidget* parent)
+HighlightableButton::HighlightableButton(const QColor& color, QWidget* parent)
 	: QPushButton(parent) {
 	qRegisterAnimationInterpolator<QColor>(colorInterpolator);
 
@@ -30,7 +30,7 @@ HighlightableButton::HighlightableButton(QWidget* parent)
 	connect(this, &HighlightableButton::colorChanged,
 			this, &HighlightableButton::onColorChanged);
 
-	setColor(QColor(211, 211, 211));
+	setColor(color);
 }
 
 void HighlightableButton::highlight(const QColor& color, int duration)
