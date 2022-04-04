@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_errorListener(new ErrorListener(this))
 {
 	ui->setupUi(this);
-    ui->loggerWidget->hide();
+	ui->loggerWidget->hide();
 
     initDialogs();
 
@@ -228,7 +228,7 @@ void MainWindow::onShowLogger(bool checked)
 
 void MainWindow::log(QString msg)
 {
-    ui->plainTextEdit->appendPlainText(msg);
+	ui->loggerOutput->appendPlainText(msg);
 }
 
 MainWindow::~MainWindow()
