@@ -33,11 +33,15 @@ private Q_SLOTS:
     void onShowLogger(bool checked);
     void onError(size_t line, size_t charPos, const std::string& msg);
 
+	void onLoggerButton(bool checked);
+
 private:
     void initDialogs();
     void proceedGrammar(QFileInfo path);
     void drawImage(QPaintDevice* paintDevice);
     void log(QString msg);
+
+	void highlightLoggerButton();
 
     int m_scaleState = 0;
     float m_saveScale;

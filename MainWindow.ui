@@ -33,7 +33,7 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
     <property name="spacing">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
@@ -56,6 +56,21 @@
        <bool>true</bool>
       </property>
       <layout class="QVBoxLayout" name="loggerLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QLabel" name="label">
          <property name="font">
@@ -63,6 +78,12 @@
            <pointsize>12</pointsize>
            <bold>false</bold>
           </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="text">
           <string>Logger</string>
@@ -85,6 +106,9 @@
            <pointsize>10</pointsize>
           </font>
          </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
          <property name="documentTitle">
           <string notr="true"/>
          </property>
@@ -102,14 +126,20 @@
     <item>
      <widget class="QPushButton" name="loggerButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumSize">
+       <size>
+        <width>20</width>
+        <height>0</height>
+       </size>
+      </property>
       <property name="maximumSize">
        <size>
-        <width>16</width>
+        <width>20</width>
         <height>16777215</height>
        </size>
       </property>
@@ -119,16 +149,16 @@
        </font>
       </property>
       <property name="toolTip">
-       <string>Show logger</string>
+       <string notr="true">Show logger</string>
       </property>
       <property name="text">
-       <string notr="true">«</string>
+       <string notr="true">»</string>
       </property>
       <property name="checkable">
        <bool>true</bool>
       </property>
       <property name="checked">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="autoDefault">
        <bool>false</bool>
@@ -148,6 +178,9 @@
         <horstretch>2</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
@@ -264,14 +297,6 @@
   <action name="actionSet_DPI">
    <property name="text">
     <string>Set DPI</string>
-   </property>
-  </action>
-  <action name="actionShow_logger">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show logger</string>
    </property>
   </action>
   <action name="actionShow_grammar">

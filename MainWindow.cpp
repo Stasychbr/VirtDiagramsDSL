@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_errorListener(new ErrorListener(this))
 {
 	ui->setupUi(this);
+
 	ui->loggerWidget->hide();
 
     initDialogs();
@@ -32,8 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
-    connect(ui->actionShow_logger, &QAction::toggled, this, &MainWindow::onShowLogger);
-    connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
+	connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
+
+	connect(ui->loggerButton, &QPushButton::toggled, this, &MainWindow::onLoggerButton);
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
@@ -102,7 +104,12 @@ void MainWindow::onError(size_t line, size_t charPos, const std::string& msg)
      message += QString::number(line);
      message += ":";
      message += QString::number(charPos);
-     log(message + " - " + msg.c_str());
+	 log(message + " - " + msg.c_str());
+}
+
+void MainWindow::onLoggerButton(bool checked)
+{
+	ui->loggerWidget->setHidden(checked);
 }
 
 void MainWindow::proceedGrammar(QFileInfo path)
@@ -111,8 +118,8 @@ void MainWindow::proceedGrammar(QFileInfo path)
     stream.open(path.filePath().toStdString());
     if (!stream.good()) {
         log("Unable to open " + path.filePath());
-        ui->actionShow_logger->setChecked(true);
-        return;
+		highlightLoggerButton();
+		return;
     }
     antlr4::ANTLRInputStream input(stream);
     MetaGrammarLexer lexer(&input);
@@ -127,7 +134,7 @@ void MainWindow::proceedGrammar(QFileInfo path)
     GraphicsVisitor visitor;
     auto rulesList = parser.ruleList();
     if (parser.getNumberOfSyntaxErrors() > 0 || lexer.getNumberOfSyntaxErrors() > 0) {
-        ui->actionShow_logger->setChecked(true);
+		highlightLoggerButton();
         return;
     }
     log("Success");
@@ -229,6 +236,11 @@ void MainWindow::onShowLogger(bool checked)
 void MainWindow::log(QString msg)
 {
 	ui->loggerOutput->appendPlainText(msg);
+}
+
+void MainWindow::highlightLoggerButton()
+{
+
 }
 
 MainWindow::~MainWindow()
