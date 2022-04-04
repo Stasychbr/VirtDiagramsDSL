@@ -21,7 +21,9 @@ void EndPointConnection::setOuterRadius(qreal radius)
 
 QPainterPath EndPointConnection::shape() const
 {
-	return innerShape().united(outerShape());
+	QPainterPath shape = outerShape();
+	shape.addPath(innerShape());
+	return shape;
 }
 
 QPainterPath EndPointConnection::innerShape() const
@@ -51,6 +53,7 @@ QPainterPath EndPointConnection::outerShape() const
 
 	path.moveTo(startPoint);
 	path.lineTo(endPoint);
+
 	return path;
 }
 
