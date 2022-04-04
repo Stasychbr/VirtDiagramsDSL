@@ -24,8 +24,6 @@ HighlightableButton::HighlightableButton(QWidget* parent)
 	: QPushButton(parent) {
 	qRegisterAnimationInterpolator<QColor>(colorInterpolator);
 
-	setCheckable(true);
-
 	setFixedWidth(20);
 	setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
@@ -68,7 +66,6 @@ void HighlightableButton::setColor(const QColor& color)
 void HighlightableButton::onColorChanged()
 {
 	QString colorName = m_color.name(QColor::HexArgb);
-   QString qss = QString("background-color: %1;"
-						 "border: none;").arg(colorName);
+   QString qss = QString("background-color: %1;").arg(colorName);
    setStyleSheet(qss);
 }

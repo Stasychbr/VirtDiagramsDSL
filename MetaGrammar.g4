@@ -29,7 +29,7 @@ terminal: INT | STRING ;
 
 STRING : '"' ( ~ '"' )* '"' ;
 
-INT: DIGIT+ ;
+INT: '-'? DIGIT+ ;
 
 ID : LETTER ( LETTER | DIGIT | '_' )*;
 

@@ -32,13 +32,13 @@ private Q_SLOTS:
     void onSetDpi();
     void onZoomOut();
     void onZoomIn();
-    void onShowLogger(bool checked);
     void onError(size_t line, size_t charPos, const std::string& msg);
 
 	void onLoggerButton(bool checked);
 
 private:
     void initDialogs();
+    void initStatusBar();
     void proceedGrammar(QFileInfo path);
     void drawImage(QPaintDevice* paintDevice);
     void log(QString msg);
@@ -57,6 +57,10 @@ private:
     QScrollBar* m_vertScroll = nullptr;
     ErrorListener* m_errorListener = nullptr;
 
+    QLabel* m_filenameLabel = nullptr;
+    QLabel* m_dpiLabel = nullptr;
+
+    bool m_fLoggerShown = false;
 	HighlightableButton* m_loggerButton;
 };
 

@@ -3,6 +3,7 @@
 
 #include <QGraphicsWidget>
 #include <QGraphicsScene>
+#include <QStatusBar>
 
 #include <QtSvg/QSvgGenerator>
 #include <QPrinter>
@@ -25,8 +26,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
 	m_loggerButton = new HighlightableButton;
 	ui->centralLayout->insertWidget(1, m_loggerButton);
+    m_loggerButton->setToolTip("Show logger");
+    onLoggerButton(false);
+
+    QPalette pal = m_loggerButton->palette();
+    pal.setColor(QPalette::Button, QColor(Qt::blue));
+    m_loggerButton->setAutoFillBackground(true);
+    m_loggerButton->setPalette(pal);
+    m_loggerButton->update();
 
     initDialogs();
+    initStatusBar();
 
     connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::onOpenAction);
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSaveAction);
@@ -35,10 +45,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
 	connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
+    connect(m_loggerButton, &QPushButton::clicked, this, &MainWindow::onLoggerButton);
 
-	connect(m_loggerButton, &QPushButton::toggled, this, &MainWindow::onLoggerButton);
-
-	m_loggerButton->setChecked(true);
+//	m_loggerButton->setChecked(true);
 	m_loggerButton->setFont(QFont("Seqoe UI", 10));
 
     auto scene = new QGraphicsScene(this);
@@ -48,9 +57,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_vertScroll->installEventFilter(this);
 
     m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
-    ui->actionSet_DPI->setText("Set DPI (" + QString::number(m_dpiDialog->getDpi()) + ")");
+    m_dpiLabel->setText("DPI: " + QString::number(m_dpiDialog->getDpi()));
 
     proceedGrammar(QFileInfo("../VirtDiagramsDSL/rules.txt"));
+}
+
+void MainWindow::initStatusBar()
+{
+    m_filenameLabel = new QLabel(this);
+    m_dpiLabel = new QLabel(this);
+    statusBar()->addWidget(m_filenameLabel);
+    statusBar()->addPermanentWidget(m_dpiLabel);
 }
 
 void MainWindow::initDialogs() {
@@ -113,16 +130,25 @@ void MainWindow::onError(size_t line, size_t charPos, const std::string& msg)
 
 void MainWindow::onLoggerButton(bool checked)
 {
-	QString buttonText = checked ? "»" : "«" ;
-	ui->loggerWidget->setHidden(checked);
+    m_fLoggerShown = !m_fLoggerShown;
+    QString buttonText = m_fLoggerShown ? "»" : "«" ;
+    ui->loggerWidget->setHidden(m_fLoggerShown);
 	m_loggerButton->setText(buttonText);
+    if (m_fLoggerShown) {
+        m_loggerButton->setToolTip("Show logger");
+    }
+    else {
+        m_loggerButton->setToolTip("Hide logger");
+    }
 }
 
 void MainWindow::proceedGrammar(QFileInfo path)
 {
+    statusBar()->showMessage("Proceeding " + path.fileName());
     QFile file(path.filePath());
     file.open(QIODeviceBase::ReadOnly | QIODeviceBase::Text);
     if (!file.isReadable()) {
+        statusBar()->showMessage("Error", 3000);
         log("Unable to open " + path.filePath());
 		highlightLoggerButton();
 		return;
@@ -136,18 +162,20 @@ void MainWindow::proceedGrammar(QFileInfo path)
     parser.addErrorListener(m_errorListener);
     lexer.addErrorListener(m_errorListener);
 
-    log("Proceeding " + path.baseName() + " file...");
+    log("Proceeding " + path.fileName() + " file...");
 
     GraphicsVisitor visitor;
     auto rulesList = parser.ruleList();
     if (parser.getNumberOfSyntaxErrors() > 0 || lexer.getNumberOfSyntaxErrors() > 0) {
+        statusBar()->showMessage("Error", 3000);
 		highlightLoggerButton();
         return;
     }
+    statusBar()->showMessage("Success", 3000);
     log("Success");
+    m_filenameLabel->setText(path.absoluteFilePath());
 
     m_curFileName = path;
-    setWindowTitle(m_curFileName.baseName());
 
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
@@ -211,7 +239,7 @@ void MainWindow::onSetDpi()
 {
     if (m_dpiDialog->exec() == QDialog::Accepted) {
         m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
-        ui->actionSet_DPI->setText("Set DPI (" + QString::number(m_dpiDialog->getDpi()) + ")");
+        m_dpiLabel->setText("DPI: " + QString::number(m_dpiDialog->getDpi()));
     }
 }
 
@@ -231,16 +259,6 @@ void MainWindow::onZoomIn()
     }
 }
 
-void MainWindow::onShowLogger(bool checked)
-{
-    if (checked) {
-        ui->loggerWidget->show();
-    }
-    else {
-        ui->loggerWidget->hide();
-    }
-}
-
 void MainWindow::log(QString msg)
 {
 	ui->loggerOutput->appendPlainText(msg);
@@ -248,7 +266,7 @@ void MainWindow::log(QString msg)
 
 void MainWindow::highlightLoggerButton()
 {
-	m_loggerButton->highlight(QColor(255, 0, 0, 125), 1000);
+    m_loggerButton->highlight(QColor(200, 0, 0, 200), 1000);
 }
 
 MainWindow::~MainWindow()
