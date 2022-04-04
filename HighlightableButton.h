@@ -9,7 +9,7 @@ class HighlightableButton : public QPushButton
 			   WRITE setColor NOTIFY colorChanged)
 
 public:
-	HighlightableButton(QWidget* parent = nullptr);
+	HighlightableButton(const QColor& color, QWidget* parent = nullptr);
 
 	void highlight(const QColor& color, int duration);
 

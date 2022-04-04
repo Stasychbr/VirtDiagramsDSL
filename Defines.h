@@ -20,7 +20,8 @@ namespace GuiMetrics {
 
 	namespace LoggerButton {
 		constexpr QColor BackroundColor = QColor(211, 211, 211);
-		static const QFont TextFont = QFont("Seqoe UI", 12);
+		const QFont TextFont = QFont("Seqoe UI", 12);
 		constexpr QColor HighlightColor = QColor(255, 0, 0, 125);
+		constexpr int HighlightDuration = 1000;
 	}
 }

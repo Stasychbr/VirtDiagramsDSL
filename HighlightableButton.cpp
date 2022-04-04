@@ -66,6 +66,6 @@ void HighlightableButton::setColor(const QColor& color)
 void HighlightableButton::onColorChanged()
 {
 	QString colorName = m_color.name(QColor::HexArgb);
-   QString qss = QString("background-color: %1;").arg(colorName);
-   setStyleSheet(qss);
+	QString qss = QString("background-color: %1;").arg(colorName);
+	setStyleSheet(qss);
 }
