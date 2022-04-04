@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
     ui->actionSet_DPI->setText("Set DPI (" + QString::number(m_dpiDialog->getDpi()) + ")");
 
-    proceedGrammar(QFileInfo("./VirtDiagramsDSL/rules.txt"));
+    proceedGrammar(QFileInfo("../VirtDiagramsDSL/rules.txt"));
 }
 
 void MainWindow::initDialogs() {
