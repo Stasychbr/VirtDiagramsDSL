@@ -8,20 +8,21 @@
 #include <QPrinter>
 
 #include <antlr4-runtime.h>
-#include <exception>
 
 #include "antlr/MetaGrammar/MetaGrammarParser.h"
 #include "antlr/MetaGrammar/MetaGrammarLexer.h"
 
 #include "GraphicsVisitor.h"
-#include "ErrorListener.h"
+
 
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
-	ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    errorListener(new ErrorListener(this))
 {
 	ui->setupUi(this);
-    setWindowTitle("SVD builder");
+    winName = windowTitle();
+    ui->loggerWidget->hide();
 
     initDialogs();
 
@@ -31,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionZoom_in, &QAction::triggered, this, &MainWindow::onZoomIn);
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
+    connect(ui->actionShow_logger, &QAction::toggled, this, &MainWindow::onShowLogger);
+    connect(errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
@@ -41,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     saveScale = dpiDialog->getDpi() / logicalDpiX();
     ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
 
-	proceedGrammar("../VirtDiagramsDSL/rules.txt");
+    proceedGrammar(QFileInfo("./VirtDiagramsDSL/rules.txt"));
 }
 
 void MainWindow::initDialogs() {
@@ -88,36 +91,50 @@ void MainWindow::onOpenAction()
     if (openDialog->exec() == QDialog::Accepted) {
         QString filename = openDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
-            proceedGrammar(filename);
+            proceedGrammar(QFileInfo(filename));
         }
     }
 }
 
-void MainWindow::proceedGrammar(QString path)
+void MainWindow::onError(size_t line, size_t charPos, const std::string& msg)
+{
+     QString message("Error at line ");
+     message += QString::number(line);
+     message += ":";
+     message += QString::number(charPos);
+     log(message + " - " + msg.c_str());
+}
+
+void MainWindow::proceedGrammar(QFileInfo path)
 {
     std::ifstream stream;
-    stream.open(path.toStdString());
-
+    stream.open(path.filePath().toStdString());
+    if (!stream.good()) {
+        log("Unable to open " + path.filePath());
+        ui->actionShow_logger->setChecked(true);
+        return;
+    }
     antlr4::ANTLRInputStream input(stream);
     MetaGrammarLexer lexer(&input);
     antlr4::CommonTokenStream tokens(&lexer);
     MetaGrammarParser parser(&tokens);
 
-	auto errorListener = new ErrorListener; //Possible memory leak
-	parser.addErrorListener(errorListener);
+    parser.addErrorListener(errorListener);
+    lexer.addErrorListener(errorListener);
+
+    log("Proceeding " + path.baseName() + " file...");
 
     GraphicsVisitor visitor;
     auto rulesList = parser.ruleList();
-    auto e = parser.getNumberOfSyntaxErrors();
-    auto sa = lexer.getNumberOfSyntaxErrors();
-    if (e > 0) {
-//        FILE* mde = stder/*r;
-//        fread*/
-        LogWindow* log = new LogWindow(this);
-        qDebug() << "sosesh" << e << sa;
-        log->show();
+    if (parser.getNumberOfSyntaxErrors() > 0 || lexer.getNumberOfSyntaxErrors() > 0) {
+        ui->actionShow_logger->setChecked(true);
         return;
     }
+    log("Success");
+
+    curFileName = path;
+    setWindowTitle(curFileName.baseName());
+
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
     scene->addItem(widget);
@@ -138,7 +155,7 @@ void MainWindow::onSaveAction()
     QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
     pixmap.fill();
     drawImage(&pixmap);
-    pixmap.save("Semantic Diagram.png");
+    pixmap.save(curFileName.baseName() + "SVD.png");
 }
 
 void MainWindow::onSaveAsAction()
@@ -197,6 +214,21 @@ void MainWindow::onZoomIn()
         ui->graphicsView->scale(scaleFactor, scaleFactor);
         scaleState++;
     }
+}
+
+void MainWindow::onShowLogger(bool checked)
+{
+    if (checked) {
+        ui->loggerWidget->show();
+    }
+    else {
+        ui->loggerWidget->hide();
+    }
+}
+
+void MainWindow::log(QString msg)
+{
+    ui->plainTextEdit->appendPlainText(msg);
 }
 
 MainWindow::~MainWindow()

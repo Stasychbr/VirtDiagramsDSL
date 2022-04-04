@@ -4,7 +4,7 @@
 #include <QFileDialog>
 #include <QScrollBar>
 #include "dpidialog.h"
-#include "logwindow.h"
+#include "ErrorListener.h"
 
 namespace Ui {
 class MainWindow;
@@ -30,19 +30,26 @@ private Q_SLOTS:
     void onSetDpi();
     void onZoomOut();
     void onZoomIn();
+    void onShowLogger(bool checked);
+    void onError(size_t line, size_t charPos, const std::string& msg);
 
 private:
     void initDialogs();
-    void proceedGrammar(QString path);
+    void proceedGrammar(QFileInfo path);
     void drawImage(QPaintDevice* paintDevice);
+    void log(QString msg);
 
     int scaleState = 0;
     float saveScale;
+    QFileInfo curFileName;
+    QString winName;
+
 	Ui::MainWindow *ui;
 
     DpiDialog* dpiDialog = nullptr;
     QFileDialog* openDialog = nullptr;
     QFileDialog* saveDialog = nullptr;
     QScrollBar* vertScroll = nullptr;
+    ErrorListener* errorListener = nullptr;
 };
 
