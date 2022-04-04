@@ -39,17 +39,16 @@ private:
     void drawImage(QPaintDevice* paintDevice);
     void log(QString msg);
 
-    int scaleState = 0;
-    float saveScale;
-    QFileInfo curFileName;
-    QString winName;
+    int m_scaleState = 0;
+    float m_saveScale;
+    QFileInfo m_curFileName;
 
 	Ui::MainWindow *ui;
 
-    DpiDialog* dpiDialog = nullptr;
-    QFileDialog* openDialog = nullptr;
-    QFileDialog* saveDialog = nullptr;
-    QScrollBar* vertScroll = nullptr;
-    ErrorListener* errorListener = nullptr;
+    DpiDialog* m_dpiDialog = nullptr;
+    QFileDialog* m_openDialog = nullptr;
+    QFileDialog* m_saveDialog = nullptr;
+    QScrollBar* m_vertScroll = nullptr;
+    ErrorListener* m_errorListener = nullptr;
 };
 

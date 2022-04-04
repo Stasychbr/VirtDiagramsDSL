@@ -18,25 +18,25 @@ DpiDialog::DpiDialog(QWidget *parent) :
 
 int DpiDialog::getDpi()
 {
-    return dpiValues[curDpiIdx];
+    return dpiValues[m_curDpiIdx];
 }
 
 void DpiDialog::on_horizontalSlider_valueChanged(int value)
 {
-    curDpiIdx = value;
+    m_curDpiIdx = value;
     ui->dpi_label->setText(QString::number(getDpi()));
 }
 
 void DpiDialog::rememberDpi()
 {
-    prevDpiIdx = curDpiIdx;
+    m_prevDpiIdx = m_curDpiIdx;
 }
 
 void DpiDialog::restoreDpi()
 {
-    curDpiIdx = prevDpiIdx;
+    m_curDpiIdx = m_prevDpiIdx;
     ui->dpi_label->setText(QString::number(getDpi()));
-    ui->horizontalSlider->setValue(curDpiIdx);
+    ui->horizontalSlider->setValue(m_curDpiIdx);
 }
 
 DpiDialog::~DpiDialog()

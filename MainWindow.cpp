@@ -19,10 +19,9 @@
 MainWindow::MainWindow(QWidget *parent) :
 	QMainWindow(parent),
     ui(new Ui::MainWindow),
-    errorListener(new ErrorListener(this))
+    m_errorListener(new ErrorListener(this))
 {
 	ui->setupUi(this);
-    winName = windowTitle();
     ui->loggerWidget->hide();
 
     initDialogs();
@@ -34,16 +33,16 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionZoom_out, &QAction::triggered, this, &MainWindow::onZoomOut);
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
     connect(ui->actionShow_logger, &QAction::toggled, this, &MainWindow::onShowLogger);
-    connect(errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
+    connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
 
     auto scene = new QGraphicsScene(this);
 	ui->graphicsView->setScene(scene);
 
-    vertScroll = ui->graphicsView->verticalScrollBar();
-    vertScroll->installEventFilter(this);
+    m_vertScroll = ui->graphicsView->verticalScrollBar();
+    m_vertScroll->installEventFilter(this);
 
-    saveScale = dpiDialog->getDpi() / logicalDpiX();
-    ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
+    m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
+    ui->actionSet_DPI->setText("Set DPI (" + QString::number(m_dpiDialog->getDpi()) + ")");
 
     proceedGrammar(QFileInfo("./VirtDiagramsDSL/rules.txt"));
 }
@@ -52,14 +51,14 @@ void MainWindow::initDialogs() {
     QStringList saveMimeTypeFilters({"image/jpeg", "image/png", "image/svg+xml", "application/pdf"});
     QStringList openMimeTypeFilters({"text/plain"});
 
-    saveDialog = new QFileDialog(this);
-    saveDialog->setMimeTypeFilters(saveMimeTypeFilters);
-    saveDialog->setAcceptMode(QFileDialog::AcceptSave);
+    m_saveDialog = new QFileDialog(this);
+    m_saveDialog->setMimeTypeFilters(saveMimeTypeFilters);
+    m_saveDialog->setAcceptMode(QFileDialog::AcceptSave);
 
-    openDialog = new QFileDialog(this);
-    openDialog->setMimeTypeFilters(openMimeTypeFilters);
+    m_openDialog = new QFileDialog(this);
+    m_openDialog->setMimeTypeFilters(openMimeTypeFilters);
 
-    dpiDialog = new DpiDialog(this);
+    m_dpiDialog = new DpiDialog(this);
 }
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
@@ -79,7 +78,7 @@ void MainWindow::wheelEvent(QWheelEvent *event) {
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj == vertScroll) {
+    if (obj == m_vertScroll) {
         if (event->type() == QEvent::Wheel) {
             return true;
         }
@@ -89,8 +88,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::onOpenAction()
 {
-    if (openDialog->exec() == QDialog::Accepted) {
-        QString filename = openDialog->selectedFiles().first();
+    if (m_openDialog->exec() == QDialog::Accepted) {
+        QString filename = m_openDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
             proceedGrammar(QFileInfo(filename));
         }
@@ -120,8 +119,8 @@ void MainWindow::proceedGrammar(QFileInfo path)
     antlr4::CommonTokenStream tokens(&lexer);
     MetaGrammarParser parser(&tokens);
 
-    parser.addErrorListener(errorListener);
-    lexer.addErrorListener(errorListener);
+    parser.addErrorListener(m_errorListener);
+    lexer.addErrorListener(m_errorListener);
 
     log("Proceeding " + path.baseName() + " file...");
 
@@ -133,8 +132,8 @@ void MainWindow::proceedGrammar(QFileInfo path)
     }
     log("Success");
 
-    curFileName = path;
-    setWindowTitle(curFileName.baseName());
+    m_curFileName = path;
+    setWindowTitle(m_curFileName.baseName());
 
     auto widget = visitor.visit(rulesList).as<QGraphicsWidget*>();
     auto scene = ui->graphicsView->scene();
@@ -153,18 +152,18 @@ void MainWindow::drawImage(QPaintDevice* paintDevice)
 void MainWindow::onSaveAction()
 {
     auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
-    QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
+    QPixmap pixmap(m_saveScale * sceneRect.width(), m_saveScale * sceneRect.height());
     pixmap.fill();
     drawImage(&pixmap);
-    pixmap.save(curFileName.baseName() + "SVD.png");
+    pixmap.save(m_curFileName.baseName() + "SVD.png");
 }
 
 void MainWindow::onSaveAsAction()
 {
-    if (saveDialog->exec() == QDialog::Accepted) {
-        QString filename = saveDialog->selectedFiles().first();
+    if (m_saveDialog->exec() == QDialog::Accepted) {
+        QString filename = m_saveDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
-            auto type = saveDialog->selectedMimeTypeFilter();
+            auto type = m_saveDialog->selectedMimeTypeFilter();
             auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
             if (type == "image/svg+xml") {
                 QSvgGenerator generator;
@@ -183,7 +182,7 @@ void MainWindow::onSaveAsAction()
                 drawImage(&printer);
             }
             else {
-                QPixmap pixmap(saveScale * sceneRect.width(), saveScale * sceneRect.height());
+                QPixmap pixmap(m_saveScale * sceneRect.width(), m_saveScale * sceneRect.height());
                 pixmap.fill();
                 drawImage(&pixmap);
                 pixmap.save(filename);
@@ -195,25 +194,25 @@ void MainWindow::onSaveAsAction()
 
 void MainWindow::onSetDpi()
 {
-    if (dpiDialog->exec() == QDialog::Accepted) {
-        saveScale = dpiDialog->getDpi() / logicalDpiX();
-        ui->actionSet_DPI->setText("Set DPI (" + QString::number(dpiDialog->getDpi()) + ")");
+    if (m_dpiDialog->exec() == QDialog::Accepted) {
+        m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
+        ui->actionSet_DPI->setText("Set DPI (" + QString::number(m_dpiDialog->getDpi()) + ")");
     }
 }
 
 void MainWindow::onZoomOut()
 {
-    if (scaleState > -scaleTimes) {
+    if (m_scaleState > -scaleTimes) {
         ui->graphicsView->scale(1.f / scaleFactor, 1.f / scaleFactor);
-        scaleState--;
+        m_scaleState--;
     }
 }
 
 void MainWindow::onZoomIn()
 {
-    if (scaleState < scaleTimes) {
+    if (m_scaleState < scaleTimes) {
         ui->graphicsView->scale(scaleFactor, scaleFactor);
-        scaleState++;
+        m_scaleState++;
     }
 }
 

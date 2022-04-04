@@ -28,11 +28,8 @@ private:
     void rememberDpi();
     void restoreDpi();
 
-    int curDpiIdx = startIdx;
-    int prevDpiIdx = startIdx;
-
-    QLabel* dpiLabel = nullptr;
-    QSlider* slider = nullptr;
+    int m_curDpiIdx = startIdx;
+    int m_prevDpiIdx = startIdx;
 
     Ui::DpiDialog *ui;
 };
