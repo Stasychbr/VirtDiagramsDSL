@@ -34,7 +34,8 @@ SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
 	leftConn->setFirstJoint({ 0.0, GuiMetrics::ItemHalfHeight });
 	leftConn->setSecondJoint({ 1.0 - WidthFraction, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 
-	leftConn->setRadius(Radius);
+	leftConn->setInnerRadius(InnerRadius);
+	leftConn->setOuterRadius(OuterRadius);
 
 	horLayout->addItem(element->layoutItem());
 
@@ -47,7 +48,9 @@ SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
 	rightConn->setFirstJoint({ 1.0, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 	rightConn->setSecondJoint({ WidthFraction, GuiMetrics::ItemHalfHeight }, Qt::RelativeSize);
 
-	rightConn->setRadius(Radius);
+	rightConn->setInnerRadius(InnerRadius);
+	rightConn->setOuterRadius(OuterRadius);
+	rightConn->setRenderType(EndPointConnection::EndPoint);
 
 	vertLayout->addItem(horLayout);
 	setLayout(vertLayout);

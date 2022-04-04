@@ -10,7 +10,8 @@ namespace GuiMetrics {
 	constexpr float VerticalItemSpacing = 25.0f;
 
 	namespace  EndPointMetrics {
-		constexpr float Radius = 5.0f;
+		constexpr float InnerRadius = 5.0f;
+		constexpr float OuterRadius = 8.0f;
 		constexpr float WidthFraction = 0.8;
 	}
 }
