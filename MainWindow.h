@@ -32,6 +32,7 @@ private Q_SLOTS:
     void onSetDpi();
     void onZoomOut();
     void onZoomIn();
+    void showMetaDiagram();
     void onError(size_t line, size_t charPos, const std::string& msg);
 
 	void onLoggerButton(bool checked);

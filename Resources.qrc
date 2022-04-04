@@ -2,4 +2,7 @@
     <qresource prefix="/icons">
         <file>RailDSLIcon.ico</file>
     </qresource>
+    <qresource prefix="/basic_grammars">
+        <file>meta_grammar.txt</file>
+    </qresource>
 </RCC>

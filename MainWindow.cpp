@@ -29,12 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     m_loggerButton->setToolTip("Show logger");
     onLoggerButton(false);
 
-    QPalette pal = m_loggerButton->palette();
-    pal.setColor(QPalette::Button, QColor(Qt::blue));
-    m_loggerButton->setAutoFillBackground(true);
-    m_loggerButton->setPalette(pal);
-    m_loggerButton->update();
-
     initDialogs();
     initStatusBar();
 
@@ -46,8 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionSet_DPI, &QAction::triggered, this, &MainWindow::onSetDpi);
 	connect(m_errorListener, &ErrorListener::errorOccured, this, &MainWindow::onError);
     connect(m_loggerButton, &QPushButton::clicked, this, &MainWindow::onLoggerButton);
+    connect(ui->actionShow_grammar, &QAction::triggered, this, &MainWindow::showMetaDiagram);
 
-//	m_loggerButton->setChecked(true);
 	m_loggerButton->setFont(QFont("Seqoe UI", 10));
 
     auto scene = new QGraphicsScene(this);
@@ -58,8 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_saveScale = m_dpiDialog->getDpi() / logicalDpiX();
     m_dpiLabel->setText("DPI: " + QString::number(m_dpiDialog->getDpi()));
-
-    proceedGrammar(QFileInfo("../VirtDiagramsDSL/rules.txt"));
 }
 
 void MainWindow::initStatusBar()
@@ -226,7 +218,8 @@ void MainWindow::onSaveAsAction()
             }
             else {
                 QPixmap pixmap(m_saveScale * sceneRect.width(), m_saveScale * sceneRect.height());
-                pixmap.fill();
+                auto color = type == "image/png" ? Qt::transparent : Qt::white;
+                pixmap.fill(color);
                 drawImage(&pixmap);
                 pixmap.save(filename);
             }
@@ -262,6 +255,10 @@ void MainWindow::onZoomIn()
 void MainWindow::log(QString msg)
 {
 	ui->loggerOutput->appendPlainText(msg);
+}
+
+void MainWindow::showMetaDiagram() {
+    proceedGrammar(QFileInfo(":/basic_grammars/meta_grammar.txt"));
 }
 
 void MainWindow::highlightLoggerButton()

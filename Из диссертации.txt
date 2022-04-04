@@ -1,2 +1,2 @@
 Program = {Name "=" Expression * ";"} ".";
-Expression = {{"(" Expression ")" | Name | "{" Elements "}" * "⋃"} * "∩"};
+Expression = {{"(" Expression ")" | Name | "{" Elements "}" * "⋃" abc} * "∩" abc};
