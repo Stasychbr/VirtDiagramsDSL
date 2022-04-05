@@ -194,6 +194,7 @@ void MainWindow::onSaveAction()
     pixmap.fill();
     drawImage(&pixmap);
 	pixmap.save(m_curFileName.baseName() + "Diagram.png");
+    statusBar()->showMessage("Saved " + m_curFileName.baseName() + "Diagram.png", 3000);
 }
 
 void MainWindow::onSaveAsAction()
@@ -226,7 +227,7 @@ void MainWindow::onSaveAsAction()
                 drawImage(&pixmap);
                 pixmap.save(filename);
             }
-
+            statusBar()->showMessage("Saved " + filename, 3000);
         }
     }
 }
