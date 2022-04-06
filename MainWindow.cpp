@@ -77,6 +77,10 @@ void MainWindow::initDialogs() {
 
 void MainWindow::wheelEvent(QWheelEvent *event) {
     static int wheelDelta = 0;
+    if (!ui->graphicsView->underMouse()) {
+        event->accept();
+        return;
+    }
     int curDelta = event->angleDelta().y();
     wheelDelta += curDelta;
     if (wheelDelta >= 120) {
@@ -102,6 +106,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::onOpenAction()
 {
+    m_openDialog->setDirectory(m_curFileName.dir());
     if (m_openDialog->exec() == QDialog::Accepted) {
         QString filename = m_openDialog->selectedFiles().first();
 		if (!filename.isEmpty()) {
@@ -189,6 +194,10 @@ void MainWindow::drawImage(QPaintDevice* paintDevice)
 
 void MainWindow::onSaveAction()
 {
+    if (!ui->graphicsView->scene()) {
+        statusBar()->showMessage("Saving error: no grammar proceeded", 3000);
+        return;
+    }
     auto sceneRect = ui->graphicsView->scene()->itemsBoundingRect();
     QPixmap pixmap(m_saveScale * sceneRect.width(), m_saveScale * sceneRect.height());
     pixmap.fill();
@@ -199,6 +208,11 @@ void MainWindow::onSaveAction()
 
 void MainWindow::onSaveAsAction()
 {
+    if (!ui->graphicsView->scene()) {
+        statusBar()->showMessage("Saving error: no grammar proceeded", 3000);
+        return;
+    }
+    m_saveDialog->setDirectory(m_curFileName.dir());
     if (m_saveDialog->exec() == QDialog::Accepted) {
         QString filename = m_saveDialog->selectedFiles().first();
         if (!filename.isEmpty()) {
