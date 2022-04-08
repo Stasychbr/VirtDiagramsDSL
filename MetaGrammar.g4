@@ -25,15 +25,17 @@ element : group
 
 nonTerminal: ID ;
 
-terminal: INT | STRING ;
+terminal: INT | STRING;
 
-STRING : '"' ( ~ '"' )* '"' ;
+STRING : '"' ( ~[\\"] | ESCAPE_SEQUENCE )* '"' ;
 
 INT: '-'? DIGIT+ ;
 
 ID : LETTER ( LETTER | DIGIT | '_' )*;
 
 fragment LETTER : LATIN_LETTER | CYRILLIC_LETTER ;
+
+fragment ESCAPE_SEQUENCE : '\\' [btnfr"'\\] ;
 
 fragment LATIN_LETTER : 'a' .. 'z' | 'A' .. 'Z' ;
 

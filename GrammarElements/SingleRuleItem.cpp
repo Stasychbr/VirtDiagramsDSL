@@ -5,8 +5,9 @@
 #include "Defines.h"
 #include "SpacerItem.h"
 #include "TextLayoutItem.h"
+#include "NonTerminalItem.h"
 
-#include "../GraphicsConnections/EndPointConnection.h"
+#include "GraphicsConnections/EndPointConnection.h"
 
 SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
 							   const QString& name,
@@ -18,7 +19,8 @@ SingleRuleItem::SingleRuleItem(ObservableWrapper* element,
 	auto vertLayout = new QGraphicsLinearLayout;
 	vertLayout->setOrientation(Qt::Vertical);
 
-	auto nameItem = new	TextLayoutItem(name);
+	const auto& parsed = NonTerminalItem::parseText(name);
+	auto nameItem = new	TextLayoutItem(parsed);
 	vertLayout->addItem(nameItem);
 
 	auto horLayout = new QGraphicsLinearLayout;
