@@ -29,7 +29,7 @@ QString TerminalItem::parseText(const QString& text)
 	copy.replace(escapeRegex, "\\1"); //replacing extra escape characters
 
 	QRegularExpression nonSpaceRegex("\\S");
-	QString cut = copy.mid(1, text.size() - 2);
+	QString cut = copy.mid(1, copy.size() - 2);
 	if (cut.contains(nonSpaceRegex)) { //check for possibility replace boundary quotes
 		copy = cut;
 	}
