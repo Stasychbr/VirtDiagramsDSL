@@ -14,7 +14,7 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 COMPONENTS Widgets Svg PrintSupport REQUIRED)
 
-set(ANTLR_DIR "C:/lib/LIBANTLR4")
+set(ANTLR_DIR "A:/antlr_c++/LIBANTLR4")
 find_package(ANTLR REQUIRED)
 
 compile_grammar(MetaGrammar WITH_VISITOR)
